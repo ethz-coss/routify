@@ -1,0 +1,16 @@
+<div class="custom-description" [hidden]="!descriptionVisible" [innerHTML]="description"></div>
+<div id="chart">
+    <apx-chart
+      #chart
+      [series]="chartOptions.series"
+      [chart]="chartOptions.chart"
+      [xaxis]="chartOptions.xaxis"
+      [yaxis]="chartOptions.yaxis"
+      [dataLabels]="chartOptions.dataLabels"
+      [grid]="chartOptions.grid"
+      [stroke]="chartOptions.stroke"
+      [title]="chartOptions.title"
+      [tooltip]="chartOptions.tooltip"
+      [markers]="chartOptions.markers"
+    ></apx-chart>
+</div>

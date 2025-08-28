@@ -1,0 +1,22 @@
+<ng-select
+    class="custom-ng-select address-select"
+    [items]="items | async"
+    bindLabel="displayname"
+    autofocus
+    [(ngModel)]="value"
+    (input)="updateSuggestionsFrom($event)"
+    (change)="onSelectionChanged($event)"
+    [searchWhileComposing]="false"
+    [multiple]="false"
+    [selectOnTab]="true"
+    [closeOnSelect]="true"
+    [openOnEnter]="false"
+    [clearSearchOnAdd]="false"
+    [editableSearchTerm]="true"
+    placeholder="{{placeholder}}"
+    [clearable]="false"
+    
+    (search)="onSearch($event)"
+    [searchable]="true"
+>
+</ng-select>

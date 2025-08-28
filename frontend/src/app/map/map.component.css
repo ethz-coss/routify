@@ -1,0 +1,1131 @@
+/* Standardized blue color palette */
+:root {
+    --primary-blue: #007bff;
+    --primary-blue-hover: #0056b3;
+    --primary-blue-light: #e7f3ff;
+    --primary-blue-border: #b3d9ff;
+    --primary-blue-text: #0056b3;
+}
+
+.map-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0px;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+}
+
+/* Mobile-specific adjustments to prevent overlap with controls bar */
+@media (max-width: 768px) {
+    .map-container {
+        bottom: 65px; /* Account for mobile controls header height (45px + 20px padding) */
+        height: calc(100vh - 65px) !important; /* Subtract mobile controls header height */
+    }
+}
+
+.map-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+    transition: flex 0.3s ease;
+}
+
+.map-frame {
+    position: relative; 
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0px;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#map {
+    height: 100%;
+    width: 100% !important;
+    z-index: 1 !important;
+}
+
+/* Ensure Leaflet controls are visible and properly positioned */
+.leaflet-control-container {
+    z-index: 1000 !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    pointer-events: none !important;
+}
+
+.leaflet-control {
+    position: absolute !important;
+    pointer-events: auto !important;
+    z-index: 1000 !important;
+}
+
+.leaflet-control-zoom {
+    margin: 10px !important;
+    position: absolute !important;
+    top: 10px !important;
+    left: 10px !important;
+    z-index: 1000 !important;
+    pointer-events: auto !important;
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+    background: white !important;
+    border: 2px solid rgba(0,0,0,0.2) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important;
+    color: #333 !important;
+    font-weight: bold !important;
+    width: 30px !important;
+    height: 30px !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    transition: background-color 0.2s ease !important;
+    margin: 2px 0 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    position: relative !important;
+}
+
+.leaflet-control-zoom-in:hover,
+.leaflet-control-zoom-out:hover {
+    background-color: #f4f4f4 !important;
+    color: #333 !important;
+}
+
+/* Specific styling for all button icon centering */
+.leaflet-control-zoom .leaflet-control-zoom-in .fa-info-circle,
+.leaflet-control-zoom .leaflet-control-zoom-in .fa-chevron-left,
+.leaflet-control-zoom .leaflet-control-zoom-in .fa-chevron-right,
+.leaflet-control-zoom .leaflet-control-zoom-in .fa-trash,
+.leaflet-control-zoom .leaflet-control-zoom-in .fa-searchengin {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    font-size: 16px !important;
+}
+
+/* Ensure icons are properly sized and positioned */
+.leaflet-control-zoom .leaflet-control-zoom-in i,
+.leaflet-control-zoom .leaflet-control-zoom-out i {
+    font-size: 14px !important;
+    line-height: 1 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Force visibility of all controls */
+.leaflet-control-zoom,
+.leaflet-control-compass,
+.leaflet-control-scale {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Remove the problematic .map-canvas styling that interferes with map interactions */
+
+/* Left Sidebar */
+.left-sidebar {
+    position: relative;
+    width: 0;
+    height: 100%;
+    background: #f5f5f5;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.15);
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: all 0.3s ease;
+    overflow-y: auto; /* allow scrolling but hide scrollbar visuals */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    visibility: hidden;
+    flex-shrink: 0;
+    flex-basis: 0;
+}
+
+.left-sidebar::-webkit-scrollbar { /* Chrome, Safari */
+    display: none;
+}
+
+.left-sidebar.active {
+    transform: translateX(0);
+    width: 400px;
+    flex-basis: 400px;
+    visibility: visible;
+}
+
+/* Query Mode Sidebar */
+.query-sidebar {
+    position: relative;
+    width: 0;
+    height: 100%;
+    background: #f5f5f5;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.15);
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    overflow-y: auto; /* allow scrolling but hide scrollbar visuals */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    visibility: hidden;
+    flex-shrink: 0;
+    flex-basis: 0;
+}
+
+.query-sidebar::-webkit-scrollbar { /* Chrome, Safari */
+    display: none;
+}
+
+.query-sidebar.active {
+    transform: translateX(0);
+    width: 400px;
+    flex-basis: 400px;
+    visibility: visible;
+}
+
+/* Project Information Sidebar */
+.project-sidebar {
+    position: relative;
+    width: 0;
+    height: 100%;
+    background: #f5f5f5;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.15);
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    visibility: hidden;
+    flex-shrink: 0;
+    flex-basis: 0;
+}
+
+/* Legal Disclaimer Styling */
+.legal-disclaimer {
+    margin-top: 25px;
+    padding: 15px 0;
+    border-top: 1px solid #e5e7eb;
+    position: relative;
+}
+
+.legal-disclaimer::before {
+    content: '⚠️';
+    position: absolute;
+    top: 15px;
+    left: 0;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+.legal-disclaimer p {
+    color: #dc2626;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 400;
+    text-align: left;
+    font-style: italic;
+    padding-left: 25px;
+}
+
+.project-sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.project-sidebar.active {
+    transform: translateX(0);
+    width: 400px;
+    flex-basis: 400px;
+    visibility: visible;
+}
+
+/* Mobile-specific project sidebar styling */
+@media (max-width: 768px) {
+    .project-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        z-index: 1002; /* Above mobile controls */
+    }
+    
+    .project-sidebar.active {
+        width: 100vw;
+        flex-basis: 100vw;
+        left: 0;
+        right: 0;
+    }
+}
+
+/* Project sidebar content styling - Professional redesign */
+.project-guide {
+    padding: 0;
+    background: #ffffff;
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 0;
+}
+
+.hero-logo {
+    margin-bottom: 20px;
+}
+
+.hero-routify-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background: white;
+    padding: 8px;
+}
+
+.project-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+}
+
+.project-subtitle {
+    font-size: 16px;
+    color: #6c757d;
+    margin: 0;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Content Sections */
+.content-sections {
+    padding: 0;
+}
+
+/* Info Cards */
+.info-card {
+    margin: 0;
+    background: white;
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+    border-radius: 0;
+    transition: background-color 0.2s ease;
+}
+
+.info-card:hover {
+    background: #f8f9fa;
+}
+
+.info-card:last-child {
+    border-bottom: none;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 24px 16px 24px;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.card-icon {
+    color: var(--primary-blue);
+    font-size: 22px !important;
+    width: 22px !important;
+    height: 22px !important;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.card-content {
+    padding: 0 24px 24px 24px;
+}
+
+.card-content p {
+    color: #4a5568;
+    line-height: 1.6;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Institution styling */
+.institution h4 {
+    color: #2c3e50;
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.institution p {
+    margin: 4px 0;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.institution .lead {
+    font-weight: 500;
+    color: #4a5568;
+}
+
+/* Resource Links */
+.resource-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.resource-link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #f1f3f4;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+}
+
+.resource-link:last-child {
+    border-bottom: none;
+}
+
+.resource-link:hover {
+    background: linear-gradient(90deg, transparent 0%, #f8f9fa 100%);
+    transform: translateX(4px);
+}
+
+.resource-link mat-icon:first-child {
+    color: var(--primary-blue);
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0;
+}
+
+.link-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.link-title {
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.link-desc {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.external-icon {
+    color: #adb5bd !important;
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.resource-link:hover .external-icon {
+    opacity: 1;
+}
+
+/* Contact Details */
+.contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.address h4 {
+    color: #2c3e50;
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.address p {
+    margin: 0;
+    line-height: 1.5;
+    color: #4a5568;
+    font-size: 14px;
+}
+
+.contact-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.contact-method {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-size: 14px;
+    padding: 8px 0;
+    transition: all 0.2s ease;
+}
+
+.contact-method:hover {
+    color: var(--primary-blue-hover);
+    transform: translateX(4px);
+}
+
+.contact-method mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+}
+
+/* Grant Info */
+.grant-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid var(--primary-blue);
+}
+
+.grant-label {
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.grant-number {
+    font-size: 12px;
+    color: #2c3e50;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+}
+
+.erc-logo {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #f1f3f4;
+}
+
+.erc-logo img {
+    max-width: 180px;
+    height: auto;
+    opacity: 0.9;
+}
+
+/* Legal Section */
+.legal-section {
+    padding: 20px 24px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.disclaimer {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 0;
+}
+
+.disclaimer-icon {
+    color: #6c757d !important;
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.disclaimer p {
+    margin: 0;
+    font-size: 12px;
+    color: #6c757d;
+    line-height: 1.5;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #d0d0d0;
+    background: #e8e8e8;
+}
+
+.sidebar-header-actions-inline {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.api-toggle-btn mat-icon {
+    color: #666;
+}
+
+.preset-toggle-btn mat-icon {
+    color: #666;
+}
+
+.dev-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px dashed #bbb; /* wireframe look */
+    border-radius: 6px;
+    padding: 2px 6px; /* reduce height */
+}
+
+.dev-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: #666;
+    background: #eee;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 2px 4px;
+    letter-spacing: 0.5px;
+}
+
+/* Make the icon buttons smaller inside the dev wireframe */
+.dev-controls .mat-icon-button {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+}
+
+.dev-controls .mat-icon-button mat-icon {
+    font-size: 18px;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    color: #4a4a4a;
+    font-size: 18px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+    background-color: #d0d0d0;
+    color: #4a4a4a;
+}
+
+.sidebar-content {
+    padding: 0;
+    background: #f5f5f5;
+}
+
+.osm-link {
+  background: #e8e8e8;
+  border-top: 1px solid #d0d0d0;
+  padding: 12px 16px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.osm-link a {
+  color: #5a5a5a;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.osm-link a:hover {
+  color: #333;
+  background: #d0d0d0;
+}
+
+/* Edge Metadata Tables - Simplified selectors */
+.edge-metadata {
+  padding: 20px;
+}
+
+/* Edge Metadata Tables Styling */
+.edge-metadata .osm-data-table,
+.edge-metadata .routify-data-table {
+    background: white;
+    border: 2px solid var(--primary-blue);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Update remaining blue colors */
+.edge-metadata .osm-data-table h4,
+.edge-metadata .routify-data-table h4 {
+    background: var(--primary-blue);
+    color: white;
+    padding: 15px;
+    margin: -20px -20px 20px -20px;
+    border-radius: 6px 6px 0 0;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.edge-metadata table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Reduce font size and spacing in Query Mode tables */
+.query-sidebar .edge-metadata table {
+    font-size: 12px;
+}
+.query-sidebar .edge-metadata table th,
+.query-sidebar .edge-metadata table td {
+    padding: 8px;
+}
+
+.edge-metadata table th {
+    background: #f8f9fa;
+    color: #333;
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #dee2e6;
+    font-weight: 600;
+}
+
+.edge-metadata table td {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    background: white;
+}
+
+.edge-metadata table tr:nth-child(even) td {
+    background: #f8f9fa;
+}
+
+.edge-metadata a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.2s ease;
+    font-weight: 500;
+}
+
+.edge-metadata a:hover {
+    color: var(--primary-blue-hover);
+}
+
+.edge-metadata a:hover::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-blue), var(--primary-blue-hover));
+    border-radius: 1px;
+    transform: scaleX(1);
+    transition: transform 0.3s ease;
+}
+
+.edge-metadata a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-blue), var(--primary-blue-hover));
+    border-radius: 1px;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.edge-metadata table tr:hover td {
+    background: var(--primary-blue-light);
+}
+
+/* Travel Time Items */
+.travel-time-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.travel-time-item:last-child {
+    margin-bottom: 0;
+}
+
+.transport-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* Query Guide Styles */
+.query-guide {
+    padding: 20px;
+    background: #f5f5f5;
+}
+
+.guide-content h4 {
+  color: #4a4a4a;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.guide-steps {
+  margin-bottom: 15px;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  text-align: justify;
+}
+
+/* Update existing blue colors */
+.step-number {
+    background: var(--primary-blue);
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    margin-right: 8px;
+}
+
+.step-text {
+  flex: 1;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.guide-tip {
+    background: var(--primary-blue-light);
+    border: 1px solid var(--primary-blue-border);
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 15px;
+    color: var(--primary-blue-text);
+    font-size: 0.9em;
+    line-height: 1.4;
+    text-align: justify;
+}
+
+.guide-data-source {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 12px;
+    margin-top: 15px;
+    color: #495057;
+    font-size: 0.9em;
+    line-height: 1.4;
+    text-align: justify;
+}
+
+.guide-environmental {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 12px;
+    margin-top: 15px;
+    color: #495057;
+    font-size: 0.9em;
+    line-height: 1.4;
+    text-align: justify;
+}
+
+/* Custom Leaflet Control Styling */
+.leaflet-control {
+    background: white;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-radius: 4px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+}
+
+.leaflet-control a {
+    background: white;
+    border-bottom: 1px solid #ccc;
+    color: #000;
+    display: block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+}
+
+.leaflet-control a:hover {
+    background-color: #f4f4f4;
+    color: #000;
+}
+
+.leaflet-control a:last-child {
+    border-bottom: none;
+}
+
+.leaflet-control a i {
+    font-size: 16px;
+    line-height: 30px;
+}
+
+.leaflet-control a .fa-fallback {
+    font-size: 18px;
+    line-height: 30px;
+    font-weight: bold;
+}
+
+/* Specific styling for sidebar toggle button */
+.leaflet-control .toggle-sidebar-mode {
+    color: #333;
+    font-weight: bold;
+}
+
+/* Ensure legend control is properly positioned at right border */
+.leaflet-control.leaflet-control-legend {
+  position: absolute !important;
+  right: 10px !important;
+  bottom: 10px !important;
+  left: auto !important;
+  top: auto !important;
+  margin: 0 !important;
+}
+
+/* Mobile-specific legend positioning to avoid overlap with controls bar */
+@media (max-width: 768px) {
+  .leaflet-control.leaflet-control-legend {
+    bottom: 75px !important; /* Position above mobile controls header (65px + 10px margin) */
+  }
+}
+
+/* Legend Styling */
+.legend {
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border: 1px solid #dee2e6;
+    min-width: 170px;
+    position: relative;
+    right: 0;
+    margin-right: 0;
+}
+
+.legend img {
+  display: block;
+  margin-bottom: 8px;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mobile Controls Bar */
+.mobile-controls-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #f5f5f5;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.15);
+    z-index: 1001;
+    height: 50vh;
+    transform: translateY(calc(100% - 65px)); /* Show header completely when collapsed (45px + 20px padding) */
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-controls-bar.active {
+    transform: translateY(0); /* Show full 50% of viewport height when expanded */
+}
+
+.mobile-controls-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: #e9ecef;
+    border-bottom: 1px solid #dee2e6;
+    cursor: pointer;
+    user-select: none;
+    height: 45px;
+}
+
+.mobile-controls-header .header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+}
+
+.mobile-controls-header h3 {
+    margin: 0 0 2px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #495057;
+    line-height: 1;
+}
+
+.mobile-controls-header .header-instruction {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 400;
+    color: #6c757d;
+    line-height: 1.2;
+    opacity: 0.8;
+    font-style: italic;
+}
+
+.mobile-controls-header .header-logo {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.mobile-controls-header .routify-logo {
+    height: 25px;
+    width: auto;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.mobile-controls-header:hover .routify-logo {
+    opacity: 1;
+}
+
+
+
+.mobile-controls-content {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+    background: #f5f5f5;
+}
+
+.mobile-controls-content.expanded {
+    max-height: calc(50vh - 65px); /* Subtract header height (45px + 20px padding) */
+}
+
+/* Ensure mobile controls don't interfere with map interactions */
+.mobile-controls-bar:not(.active) {
+    pointer-events: none;
+}
+
+.mobile-controls-bar:not(.active) .mobile-controls-header {
+    pointer-events: auto;
+}
+
+/* Mobile-specific adjustments for controls */
+@media (max-width: 768px) {
+    .mobile-controls-content app-controls {
+        padding: 0px; /* Reduced top padding to minimize space */
+    }
+    
+    .mobile-controls-content .container-controls {
+        max-width: none;
+        margin: 0;
+    }
+    
+    /* Remove top padding from container-controls in mobile */
+    .mobile-controls-content .container-controls {
+        padding-top: 0 !important;
+    }
+    
+    /* Ensure input fields are clickable on mobile */
+    .mobile-controls-content input,
+    .mobile-controls-content .ng-select,
+    .mobile-controls-content .custom-ng-select,
+    .mobile-controls-content .address-select {
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        -webkit-user-select: text !important;
+        user-select: text !important;
+        z-index: 1003 !important;
+        position: relative !important;
+    }
+    
+    /* Ensure mobile controls content is fully interactive when expanded */
+    .mobile-controls-bar.active .mobile-controls-content {
+        pointer-events: auto !important;
+    }
+    
+    /* Mobile controls bar positioning handled in main .map-container rule */
+    
+
+    
+    /* Improve touch targets on mobile */
+    .mobile-controls-header {
+        height: 45px; /* Ensure consistent height */
+    }
+    
+    /* Ensure proper scrolling in mobile controls */
+    .mobile-controls-content {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+

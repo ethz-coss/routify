@@ -1,0 +1,59 @@
+# Node / Package managers
+node_modules/
+.npm/
+.npmrc
+pnpm-lock.yaml
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+
+# Build outputs
+/dist/
+/build/
+/.output/
+/.vercel/output/
+
+# Test coverage
+/coverage/
+
+# Framework caches
+/.angular/
+/.next/
+/.nuxt/
+/.svelte-kit/
+/.turbo/
+/.cache/
+/.vite/
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# Capacitor / Platform artifacts
+ios/Pods/
+ios/Podfile.lock
+android/.gradle/
+android/.cxx/
+android/local.properties
+android/app/build/
+
+# Misc
+*.tgz
+*.zip
+*.tar
+*.tar.gz
+*.swp
+*.swo

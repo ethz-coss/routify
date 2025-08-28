@@ -1,0 +1,318 @@
+<div class="map-container" [class.sidebar-open]="querymode" [class.left-sidebar-open]="baseComponent.sidebarOpen">
+    <!-- Left Sidebar (hidden on mobile) -->
+    <div class="left-sidebar" [class.active]="baseComponent.sidebarOpen" [style.display]="isMobile() ? 'none' : 'block'">
+        <div class="sidebar-header">
+            <h3>Controls</h3>
+            <div class="sidebar-header-actions-inline" *ngIf="controls?.devMode">
+                <div class="dev-controls">
+                    <span class="dev-badge">DEV</span>
+                    <button mat-icon-button class="preset-toggle-btn" (click)="controls.presetAddress()" title="preset address">
+                        <mat-icon fontIcon="alt_route"></mat-icon>
+                    </button>
+                    <button mat-icon-button class="api-toggle-btn" (click)="controls.routing.toggleLocal()" title="toggle API source">
+                        <mat-icon [fontIcon]="controls.routing.isLocal ? 'cloud_off' : 'cloud'"></mat-icon>
+                    </button>
+                </div>
+            </div>
+            <button class="close-btn" (click)="closeLeftSidebar()">×</button>
+        </div>
+        <div class="sidebar-content">
+            <app-controls #controls [map]="this"></app-controls>
+        </div>
+    </div>
+    
+    <div class="map-area">
+        <div class="map-frame">
+            <div id="map"></div>
+        </div>
+    </div>
+    
+    <!-- Mobile Controls Bar (only visible on mobile) -->
+    <div class="mobile-controls-bar" [class.active]="mobileControlsOpen" [style.display]="isMobile() ? 'block' : 'none'">
+        <div class="mobile-controls-header" (click)="toggleMobileControls()">
+            <div class="header-content">
+                <h3>Route Controls</h3>
+                <p class="header-instruction" *ngIf="!mobileControlsOpen">Press to open route planning</p>
+                <p class="header-instruction" *ngIf="mobileControlsOpen">Press to close controls</p>
+            </div>
+            <div class="header-logo">
+                <img src="/assets/images/routy.webp" alt="Routify" class="routify-logo">
+            </div>
+        </div>
+        <div class="mobile-controls-content" [class.expanded]="mobileControlsOpen">
+            <app-controls #mobileControls [map]="this"></app-controls>
+        </div>
+    </div>
+    
+    <!-- Query Mode Sidebar (hidden on mobile) -->
+    <div class="query-sidebar" [class.active]="querymode" [style.display]="isMobile() ? 'none' : 'block'">
+        <div class="sidebar-header">
+            <h3>Query Mode</h3>
+            <button class="close-btn" (click)="deactivateQueryMode()">×</button>
+        </div>
+        
+        <div class="sidebar-content">
+            <!-- Guide when no edge is selected -->
+            <div class="query-guide" *ngIf="!selectedEdge">
+                <div class="guide-content">
+                    <h4>How to use Query Mode</h4>
+                    <div class="guide-steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <span class="step-text">Click anywhere on the map to query nearby edges</span>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <span class="step-text">Orange lines will appear showing the queried edges</span>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <span class="step-text">Click on any orange line to view detailed information</span>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">4</span>
+                            <span class="step-text">The sidebar will show edge details and OpenStreetMap view</span>
+                        </div>
+                    </div>
+                    <div class="guide-tip">
+                        <strong>Tip:</strong> You can click multiple times to add more edges to the query results.
+                    </div>
+                    <div class="guide-data-source">
+                        <strong>Data Source:</strong> The data is closely linked to OpenStreetMap (OSM). Our custom graph data structure tracks OSM IDs to enable direct linking to the source data. Each edge and node maintains its original OSM identifier, allowing you to view and verify the data in OpenStreetMap.
+                    </div>
+                    <div class="guide-environmental">
+                        <strong>Environmental Data:</strong> Environmental data is computed from various open source data sources and enables us to overload the OSM graph and perform custom route optimizations. This enhanced data layer provides additional context for routing decisions beyond traditional distance and time calculations.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- OSM Frame -->
+            <div class="osm-frame-container" *ngIf="selectedEdge">
+                <div class="osm-link">
+                    <a [href]="config.openstreetmapUrl + '/way/' + selectedEdge.osmId" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> View in OpenStreetMap
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Edge Metadata -->
+            <div class="edge-metadata" *ngIf="selectedEdge">
+                <!-- OpenStreetMap Data Table -->
+                <div class="osm-data-table">
+                    <h4>OpenStreetMap Data</h4>
+                    <table>
+                        <tr>
+                            <th>Highway Type</th>
+                            <td>{{selectedEdge.highway}}</td>
+                        </tr>
+                        <tr>
+                            <th>OSM Way</th>
+                            <td><a [href]="config.openstreetmapUrl + '/way/' + selectedEdge.osmId" target="_blank">way/{{selectedEdge.osmId}}</a></td>
+                        </tr>
+                        <tr>
+                            <th>Source Node</th>
+                            <td><a [href]="config.openstreetmapUrl + '/node/' + selectedEdge.source.osmId" target="_blank">node/{{selectedEdge.source.osmId}}</a></td>
+                        </tr>
+                        <tr>
+                            <th>Target Node</th>
+                            <td><a [href]="config.openstreetmapUrl + '/node/' + selectedEdge.target.osmId" target="_blank">node/{{selectedEdge.target.osmId}}</a></td>
+                        </tr>
+                        <tr>
+                            <th>Distance</th>
+                            <td>{{selectedEdge.distance.toFixed(2)}}m</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <!-- Routify Enhanced Data Table -->
+                <div class="routify-data-table">
+                    <h4>Routify Enhanced Data</h4>
+                    <table>
+                        <tr>
+                            <th>Routify ID</th>
+                            <td>{{selectedEdge.id}}</td>
+                        </tr>
+                        <tr>
+                            <th>Max Speed</th>
+                            <td>{{selectedEdge.maxspeed}} km/h</td>
+                        </tr>
+                        <tr>
+                            <th>Slope</th>
+                            <td>{{(selectedEdge.slope * 100).toFixed(2)}}%</td>
+                        </tr>
+                        <tr>
+                            <th>Cardinal Direction</th>
+                            <td>{{selectedEdge.cardinalDirection}}</td>
+                        </tr>
+                        <tr>
+                            <th>Noise Level</th>
+                            <td>{{selectedEdge.noise.toFixed(2)}}db</td>
+                        </tr>
+                        <tr>
+                            <th>Green Index</th>
+                            <td>{{selectedEdge.greenIndex.toFixed(2)}}</td>
+                        </tr>
+                        <tr>
+                            <th>PM 10</th>
+                            <td>{{selectedEdge.pm_10.toFixed(2)}} µg/m³</td>
+                        </tr>
+                        <tr>
+                            <th>Travel Times</th>
+                            <td>
+                                <div class="travel-time-item">
+                                    <img src="assets/icons/directions_walk.png" alt="Walk" class="transport-icon">
+                                    <span>{{formatTravelTime(selectedEdge.traveltime.transport_mode_walk)}}</span>
+                                </div>
+                                <div class="travel-time-item">
+                                    <img src="assets/icons/directions_bike.png" alt="Bike" class="transport-icon">
+                                    <span>{{formatTravelTime(selectedEdge.traveltime.transport_mode_cycle)}}</span>
+                                </div>
+                                <div class="travel-time-item">
+                                    <img src="assets/icons/directions_car.png" alt="Drive" class="transport-icon">
+                                    <span>{{formatTravelTime(selectedEdge.traveltime.transport_mode_drive)}}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Information Sidebar -->
+    <div class="project-sidebar" [class.active]="projectInfoVisible">
+        <div class="sidebar-header">
+            <h3>About Routify</h3>
+            <button class="close-btn" (click)="closeProjectInfo()">×</button>
+        </div>
+        
+        <div class="sidebar-content">
+            <div class="project-guide">
+                <!-- Hero Section -->
+                <div class="hero-section">
+                    <div class="hero-logo">
+                        <img src="/assets/images/routy.webp" alt="Routify" class="hero-routify-logo">
+                    </div>
+                    <h1 class="project-title">Routify</h1>
+                    <p class="project-subtitle">Intelligent Environmental Routing</p>
+                </div>
+
+                <!-- Main Content -->
+                <div class="content-sections">
+                    <!-- Overview Card -->
+                    <div class="info-card overview-card">
+                        <div class="card-header">
+                            <mat-icon class="card-icon">explore</mat-icon>
+                            <h3>About</h3>
+                        </div>
+                        <div class="card-content">
+                            <p>An open-source intelligent routing platform that considers environmental factors like air quality, noise levels, and green spaces to provide personalized route recommendations beyond traditional distance-based navigation.</p>
+                        </div>
+                    </div>
+
+                    <!-- Research Card -->
+                    <div class="info-card research-card">
+                        <div class="card-header">
+                            <mat-icon class="card-icon">school</mat-icon>
+                            <h3>Research</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="institution">
+                                <h4>ETH Zürich</h4>
+                                <p>Computational Social Science</p>
+                                <p class="lead">Prof. Dr. Dirk Helbing</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resources Card -->
+                    <div class="info-card resources-card">
+                        <div class="card-header">
+                            <mat-icon class="card-icon">link</mat-icon>
+                            <h3>Resources</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="resource-links">
+                                <a [href]="config.githubUrl" target="_blank" class="resource-link">
+                                    <mat-icon>code</mat-icon>
+                                    <div class="link-text">
+                                        <span class="link-title">GitHub Repository</span>
+                                        <span class="link-desc">Source code & documentation</span>
+                                    </div>
+                                    <mat-icon class="external-icon">open_in_new</mat-icon>
+                                </a>
+                                <a href="https://dl.acm.org/doi/10.1145/3640457.3691702" target="_blank" class="resource-link">
+                                    <mat-icon>article</mat-icon>
+                                    <div class="link-text">
+                                        <span class="link-title">Research Paper</span>
+                                        <span class="link-desc">ACM RecSys 2024</span>
+                                    </div>
+                                    <mat-icon class="external-icon">open_in_new</mat-icon>
+                                </a>
+                                <a [href]="config.cossWebsiteUrl" target="_blank" class="resource-link">
+                                    <mat-icon>public</mat-icon>
+                                    <div class="link-text">
+                                        <span class="link-title">COSS Website</span>
+                                        <span class="link-desc">coss.ethz.ch</span>
+                                    </div>
+                                    <mat-icon class="external-icon">open_in_new</mat-icon>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Card -->
+                    <div class="info-card contact-card">
+                        <div class="card-header">
+                            <mat-icon class="card-icon">contact_mail</mat-icon>
+                            <h3>Contact</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="contact-details">
+                                <div class="address">
+                                    <h4>Address</h4>
+                                    <p>Computational Social Science<br>
+                                    ETH Zürich<br>
+                                    Stampfenbachstrasse 48<br>
+                                    8092 Zürich, Switzerland</p>
+                                </div>
+                                <div class="contact-methods">
+                                    <a [href]="'mailto:' + config.contactEmail" class="contact-method">
+                                        <mat-icon>email</mat-icon>
+                                        <span>secretary-coss&#64;coss.ethz.ch</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Funding Card -->
+                    <div class="info-card funding-card">
+                        <div class="card-header">
+                            <mat-icon class="card-icon">euro</mat-icon>
+                            <h3>Funding</h3>
+                        </div>
+                        <div class="card-content">
+                            <p>This research is supported by the European Research Council (ERC) under the European Union's Horizon 2020 research and innovation programme.</p>
+                            <div class="grant-info">
+                                <span class="grant-label">Grant Agreement:</span>
+                                <span class="grant-number">No. 833168</span>
+                            </div>
+                            <div class="erc-logo">
+                                <img src="/assets/images/LOGO_ERC-FLAG_FP_v2.png" alt="European Research Council Logo">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Legal Disclaimer -->
+                    <div class="legal-section">
+                        <div class="disclaimer">
+                            <mat-icon class="disclaimer-icon">info</mat-icon>
+                            <p>The Computational Social Science Professorship at ETH Zürich is fully responsible for the content of this platform. Provided for research and educational purposes only.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

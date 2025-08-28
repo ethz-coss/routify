@@ -1,0 +1,12 @@
+.custom-slider {
+    position: flex;
+    text-align: justify;
+    width: 80%;
+    margin-left: 0.5em;
+}
+
+.container-custom-slider {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    text-align: center;
+}

@@ -1,0 +1,44 @@
+.base-container {
+    width: 100%;
+    height: 100%;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+    background-color: #e9ecef;
+    color: #333;
+}
+
+.sidebar-content {
+    padding: 0;
+}

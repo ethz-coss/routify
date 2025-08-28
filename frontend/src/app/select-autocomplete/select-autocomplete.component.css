@@ -1,0 +1,142 @@
+/* Ensure input text is black and clearly visible */
+.custom-ng-select .ng-select-container .ng-value-container .ng-input input {
+    color: black !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+}
+
+.custom-ng-select .ng-select-container .ng-value-container .ng-placeholder {
+    color: black !important;
+    font-weight: 400 !important;
+}
+
+.custom-ng-select .ng-select-container .ng-value-container .ng-value {
+    color: black !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+}
+
+/* Override any global styles that might affect text color */
+::ng-deep .custom-ng-select .ng-select-container .ng-value-container .ng-input input {
+    color: black !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+}
+
+::ng-deep .custom-ng-select .ng-select-container .ng-value-container .ng-value {
+    color: black !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+}
+
+/* Ensure the input field itself has black text */
+.custom-ng-select .ng-select-container {
+    color: black !important;
+}
+
+.custom-ng-select .ng-select-container .ng-value-container {
+    color: black !important;
+}
+
+.custom-ng-select .ng-select-container .ng-value-container .ng-input {
+    color: black !important;
+}
+
+/* Additional specificity for ng-select elements */
+.custom-ng-select.ng-select .ng-select-container .ng-value-container .ng-input input {
+    color: black !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+}
+
+.custom-ng-select.ng-select .ng-select-container .ng-value-container .ng-value {
+    color: black !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+}
+
+/* Force black text on all ng-select input elements */
+.custom-ng-select input {
+    color: black !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+}
+
+.custom-ng-select .ng-input input {
+    color: black !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+}
+
+/* Specific styling for placeholder text */
+::ng-deep .custom-ng-select .ng-select-container .ng-value-container .ng-placeholder {
+    color: black !important;
+    font-weight: 400 !important;
+}
+
+::ng-deep .custom-ng-select .ng-select-container .ng-value-container .ng-input input::placeholder {
+    color: black !important;
+    font-weight: 400 !important;
+}
+
+/* Ensure ng-select displays text properly */
+::ng-deep .custom-ng-select .ng-select-container .ng-value-container .ng-input {
+    color: black !important;
+}
+
+::ng-deep .custom-ng-select .ng-select-container .ng-value-container .ng-value {
+    color: black !important;
+}
+
+.custom-ng-select .ng-dropdown-panel {
+    background-color: rgb(190, 190, 190) !important; /* Set your desired background color here */
+}
+
+::ng-deep .ng-dropdown-panel {
+    background-color: rgb(190, 190, 190) !important; /* Set your desired background color here */
+}
+
+.custom-ng-select .ng-option-selected {
+    background-color: rgb(188, 187, 252) !important; /* Set your desired highlight color here */
+}
+
+::ng-deep .ng-option-selected {
+    background-color: rgb(188, 187, 252) !important; /* Set your desired highlight color here */
+}
+
+.custom-ng-select .ng-option.ng-option-marked {
+    background-color: rgb(188, 187, 252); /* Set your desired color while selecting */
+}
+
+::ng-deep .ng-option.ng-option-marked {
+    background-color: rgb(188, 187, 252); /* Set your desired color while selecting */
+}
+
+/* Mobile-specific touch handling */
+@media (max-width: 768px) {
+    .custom-ng-select {
+        touch-action: manipulation !important;
+        -webkit-user-select: text !important;
+        user-select: text !important;
+    }
+    
+    .custom-ng-select .ng-select-container {
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        cursor: text !important;
+        min-height: 44px !important;
+    }
+    
+    /* Ensure ng-select input is properly focusable on mobile - minimal overrides */
+    ::ng-deep .custom-ng-select .ng-select-container .ng-value-container .ng-input input {
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        font-size: 16px !important; /* Prevent zoom on iOS */
+    }
+    
+    /* Ensure dropdown opens on mobile */
+    ::ng-deep .custom-ng-select .ng-arrow-wrapper {
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+    }
+}

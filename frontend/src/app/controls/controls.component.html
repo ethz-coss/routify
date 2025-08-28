@@ -1,0 +1,204 @@
+<div class="overlay" *ngIf="loadingRouteCount > 0"></div>
+<div class="container-controls">
+    <div class="geocoder-attribution">
+                        Powered by <a [href]="config.photonGeocoderUrl" target="_blank">Photon Geocoder</a> (which uses <a [href]="config.elasticsearchUrl" target="_blank">Elasticsearch</a>)
+    </div>
+
+    <div class="address-transport-wrapper">
+    <div id="addressFields-grid">
+        <mat-icon class="start_icon" fontIcon="radio_button_on"></mat-icon>
+        <mat-icon class="filler_icon1" fontIcon="noise_control_off"></mat-icon>
+        <mat-icon class="filler_icon2" fontIcon="noise_control_off"></mat-icon>
+        <mat-icon class="filler_icon3" fontIcon="noise_control_off"></mat-icon>
+        <mat-icon class="destination_icon" fontIcon="location_on"></mat-icon>
+        <app-select-autocomplete class="container-input-address1" [placeholder]="'Starting point'" #input_from
+            (keydown.enter)="requestRouting()" (change)="requestRouting()"></app-select-autocomplete>
+        <app-select-autocomplete class="container-input-address2" [placeholder]="'Destination'" #input_to
+            (keydown.enter)="requestRouting()" (change)="requestRouting()"></app-select-autocomplete>
+    </div>
+        <div class="flip-col">
+            <button class="flip-inside-transport" (click)="flipAddresses()" title="Swap origin and destination addresses">
+                <mat-icon aria-label="switch_input" fontIcon="sync_alt"></mat-icon>
+            </button>
+        </div>
+        <div class="custom-transport-container">
+            <div class="custom-transport-group">
+                <button class="custom-transport-btn" 
+                        [class.active]="transportMode === 'transport_mode_walk'"
+                        (click)="transportMode = 'transport_mode_walk'; onChangeControls()" 
+                        title="Walking mode - Calculate routes optimized for pedestrians">
+                    <mat-icon fontIcon="directions_walk"></mat-icon>
+                </button>
+                <button class="custom-transport-btn" 
+                        [class.active]="transportMode === 'transport_mode_cycle'"
+                        (click)="transportMode = 'transport_mode_cycle'; onChangeControls()" 
+                        title="Cycling mode - Calculate routes optimized for cyclists">
+                    <mat-icon fontIcon="directions_bike"></mat-icon>
+                </button>
+                <button class="custom-transport-btn" 
+                        [class.active]="transportMode === 'transport_mode_drive'"
+                        (click)="transportMode = 'transport_mode_drive'; onChangeControls()" 
+                        title="Driving mode - Calculate routes optimized for motor vehicles">
+                    <mat-icon fontIcon="directions_car"></mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="selector-tip">
+        <span *ngIf="!isMobile()">Left‑click to toggle routing modes. Right‑click a mode to adjust its parameter.</span>
+        <span *ngIf="isMobile()">Press to toggle routing modes. Hold a mode to adjust its parameter.</span>
+    </div>
+    <div class="container-mode-selection">
+        <div class="custom-routing-modes">
+            <button class="custom-mode-btn" [class.active]="isRoutingModeActive('routing_mode_distance')" (click)="toggleRoutingMode('routing_mode_distance', $event)" (contextmenu)="openSliderFor('routing_mode_distance', $event)" [style.--active-border-color]="getColorForRoutingMode('routing_mode_distance')" [ngClass]="{'active-slider': activeSliderMode==='routing_mode_distance'}" title="distance">
+                <mat-icon aria-hidden="false" aria-label="distance" fontIcon="signpost" [style.color]="getColorForRoutingMode('routing_mode_distance')"></mat-icon>
+            </button>
+            <button class="custom-mode-btn" [class.active]="isRoutingModeActive('routing_mode_green')" (click)="toggleRoutingMode('routing_mode_green', $event)" (contextmenu)="openSliderFor('routing_mode_green', $event)" [style.--active-border-color]="getColorForRoutingMode('routing_mode_green')" [ngClass]="{'active-slider': activeSliderMode==='routing_mode_green'}" title="green index">
+                <mat-icon aria-hidden="false" aria-label="green_index" fontIcon="eco" [style.color]="getColorForRoutingMode('routing_mode_green')"></mat-icon>
+            </button>
+            <button class="custom-mode-btn" [class.active]="isRoutingModeActive('routing_mode_slope')" (click)="toggleRoutingMode('routing_mode_slope', $event)" (contextmenu)="openSliderFor('routing_mode_slope', $event)" [style.--active-border-color]="getColorForRoutingMode('routing_mode_slope')" [ngClass]="{'active-slider': activeSliderMode==='routing_mode_slope'}" title="elevation">
+                <mat-icon aria-hidden="false" aria-label="slope" fontIcon="landscape" [style.color]="getColorForRoutingMode('routing_mode_slope')"></mat-icon>
+            </button>
+            <button class="custom-mode-btn" [class.active]="isRoutingModeActive('routing_mode_noise')" (click)="toggleRoutingMode('routing_mode_noise', $event)" (contextmenu)="openSliderFor('routing_mode_noise', $event)" [style.--active-border-color]="getColorForRoutingMode('routing_mode_noise')" [ngClass]="{'active-slider': activeSliderMode==='routing_mode_noise'}" title="noise exposure">
+                <mat-icon aria-hidden="false" aria-label="noise" fontIcon="volume_up" [style.color]="getColorForRoutingMode('routing_mode_noise')"></mat-icon>
+            </button>
+            <button class="custom-mode-btn" [class.active]="isRoutingModeActive('routing_mode_air')" (click)="toggleRoutingMode('routing_mode_air', $event)" (contextmenu)="openSliderFor('routing_mode_air', $event)" [style.--active-border-color]="getColorForRoutingMode('routing_mode_air')" [ngClass]="{'active-slider': activeSliderMode==='routing_mode_air'}" title="air quality">
+                <mat-icon aria-hidden="false" aria-label="air_quality" fontIcon="air" [style.color]="getColorForRoutingMode('routing_mode_air')"></mat-icon>
+            </button>
+            
+        </div>
+    </div>
+
+    <!-- contextual slider for routing modes (right-click to open) -->
+    <div class="context-slider" *ngIf="activeSliderMode" [style.--context-color]="getColorForRoutingMode(activeSliderMode!)">
+        <mat-icon class="context-slider-icon" [fontIcon]="getIconForMode(activeSliderMode)"></mat-icon>
+        <app-parameter-slider #context_slider [default]="getDefaultForActiveSlider()" [max]="getMaxForActiveSlider()"
+            [label]="getLabelForActiveSlider()" (mouseup)="onSliderMouseUp()"></app-parameter-slider>
+    </div>
+    <div class="context-slider-tip" *ngIf="activeSliderMode">{{ getSliderDescription() }}</div>
+
+
+
+    <div class="bottom-container">
+        <mat-expansion-panel class="metrics-expansion" [expanded]="metricsVisible" hideToggle="true" (opened)="metricsVisible = true; directionsVisible = false; onChangeSelectedChart()" (closed)="metricsVisible = false">
+            <mat-expansion-panel-header>
+                <div class="metrics-header">
+                    <button mat-icon-button color="primary" class="metrics-toggle-btn" (click)="$event.stopPropagation(); toggleMetrics()" title="toggle metrics">
+                        <mat-icon>{{ metricsVisible ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    </button>
+                    <span class="metrics-title">Route insights</span>
+                </div>
+            </mat-expansion-panel-header>
+
+            <!-- statistics control: overlay toggle + either metric or routing-mode buttons -->
+            <div class="container-mode-selection stats-container">
+                <!-- overlay toggle (single button) -->
+                <div class="custom-routing-modes overlay-group">
+                    <button class="custom-mode-btn overlay-toggle-btn" (click)="overlayEnabled = !overlayEnabled; onChangeSelectedChart()" [title]="overlayEnabled ? 'Disable overlay' : 'Enable overlay'">
+                        <mat-icon [fontIcon]="overlayEnabled ? 'fullscreen' : 'fullscreen_exit'"></mat-icon>
+                    </button>
+                </div>
+
+                <!-- show metric buttons when overlay is disabled -->
+                <div *ngIf="!overlayEnabled" class="custom-routing-modes stats-toggle-group" role="group" aria-label="statistics_selector">
+                    <button class="custom-mode-btn" [class.active]="selectedChart==='altitude'" (click)="selectedChart='altitude'; onChangeSelectedChart()" title="altitude"><mat-icon aria-hidden="false" aria-label="altitude" fontIcon="landscape"></mat-icon></button>
+                    <button class="custom-mode-btn" [class.active]="selectedChart==='green'" (click)="selectedChart='green'; onChangeSelectedChart()" title="green index"><mat-icon aria-hidden="false" aria-label="green_index" fontIcon="eco"></mat-icon></button>
+                    <button class="custom-mode-btn" [class.active]="selectedChart==='noise'" (click)="selectedChart='noise'; onChangeSelectedChart()" title="noise level"><mat-icon aria-hidden="false" aria-label="noise" fontIcon="volume_up"></mat-icon></button>
+                    <button class="custom-mode-btn" [class.active]="selectedChart==='air'" (click)="selectedChart='air'; onChangeSelectedChart()" title="air pollution"><mat-icon aria-hidden="false" aria-label="air_quality" fontIcon="air"></mat-icon></button>
+                </div>
+
+                <!-- when overlay is enabled, select routing mode to display overlay for; only show modes with computed routes -->
+                <div *ngIf="overlayEnabled" class="custom-routing-modes stats-toggle-group" role="group" aria-label="routing_modes_overlay">
+                    <button *ngIf="this.prevRoutingModes.includes('routing_mode_distance')" class="custom-mode-btn" [class.active]="routingModeChart==='routing_mode_distance'" (click)="setRoutingModeChart('routing_mode_distance', $event)" title="distance"><mat-icon aria-hidden="false" aria-label="distance" fontIcon="signpost"></mat-icon></button>
+                    <button *ngIf="this.prevRoutingModes.includes('routing_mode_green')" class="custom-mode-btn" [class.active]="routingModeChart==='routing_mode_green'" (click)="setRoutingModeChart('routing_mode_green', $event)" title="green index"><mat-icon aria-hidden="false" aria-label="green_index" fontIcon="eco"></mat-icon></button>
+                    <button *ngIf="this.prevRoutingModes.includes('routing_mode_slope')" class="custom-mode-btn" [class.active]="routingModeChart==='routing_mode_slope'" (click)="setRoutingModeChart('routing_mode_slope', $event)" title="elevation"><mat-icon aria-hidden="false" aria-label="slope" fontIcon="landscape"></mat-icon></button>
+                    <button *ngIf="this.prevRoutingModes.includes('routing_mode_noise')" class="custom-mode-btn" [class.active]="routingModeChart==='routing_mode_noise'" (click)="setRoutingModeChart('routing_mode_noise', $event)" title="noise exposure"><mat-icon aria-hidden="false" aria-label="noise" fontIcon="volume_up"></mat-icon></button>
+                    <button *ngIf="this.prevRoutingModes.includes('routing_mode_air')" class="custom-mode-btn" [class.active]="routingModeChart==='routing_mode_air'" (click)="setRoutingModeChart('routing_mode_air', $event)" title="air quality"><mat-icon aria-hidden="false" aria-label="air_quality" fontIcon="air"></mat-icon></button>
+                    
+                </div>
+            </div>
+
+            <div class="stats-chart">
+                <!-- <div class="stats-chart-title">{{ overlayEnabled ? 'Normalized Multi‑Metric Overlay' : (selectedChart === 'altitude' ? 'altitude' : selectedChart === 'green' ? 'green index' : selectedChart === 'noise' ? 'noise level' : 'air pollution') }}</div> -->
+                <app-custom-chart #chart_main [map]="this.map"
+                    [info]="overlayEnabled ? '' : (selectedChart === 'altitude' ? 'altitude [m]' : selectedChart === 'green' ? 'green index' : selectedChart === 'noise' ? 'noise [db]' : 'PM 10 [µg/m³]')"
+                    [description]="overlayEnabled ? descriptionOverlay : (selectedChart === 'altitude' ? descriptionAltitude : selectedChart === 'green' ? descriptionGreen : selectedChart === 'noise' ? descriptionNoise : descriptionAir)"
+                    [precision]="overlayEnabled ? 2 : (selectedChart === 'altitude' ? 0 : selectedChart === 'noise' ? 0 : selectedChart === 'air' ? 1 : 2)"></app-custom-chart>
+                <div class="chart-tip">
+                    <ng-container *ngIf="overlayEnabled; else metricTip">
+                        <span [innerHTML]="descriptionOverlay"></span>
+                    </ng-container>
+                    <ng-template #metricTip>
+                        This expanded view shows the selected metric for all visible routes. Hovering highlights the point on the map.
+                    </ng-template>
+                </div>
+
+                <div class="chart-data-source" *ngIf="!overlayEnabled">
+                    <span [innerHTML]="selectedChart === 'altitude' ? descriptionAltitude : selectedChart === 'green' ? descriptionGreen : selectedChart === 'noise' ? descriptionNoise : descriptionAir"></span>
+                </div>
+            </div>
+        </mat-expansion-panel>
+    </div>
+
+   
+    <div class="dir-container">
+        <mat-expansion-panel class="metrics-expansion" [expanded]="directionsVisible" hideToggle="true" (opened)="directionsVisible = true; metricsVisible = false" (closed)="directionsVisible = false">
+            <mat-expansion-panel-header>
+                <div class="metrics-header">
+                    <button mat-icon-button color="primary" class="metrics-toggle-btn" (click)="$event.stopPropagation(); collapseDirections()" title="toggle directions">
+                        <mat-icon>{{ directionsVisible ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+                    <span class="metrics-title">Directions</span>
+                </div>
+            </mat-expansion-panel-header>
+            <div class="directions-tip">Select a routing mode to display the step-by-step directions for that route.</div>
+            <div class="container-mode-selection">
+                <mat-button-toggle-group name="routing_mode_selector" aria-label="routing_modes"
+                    [(value)]="routingModeDirections">
+                    <mat-button-toggle *ngIf="this.routingModes.includes('routing_mode_distance')"
+                        value="routing_mode_distance"><mat-icon aria-hidden="false" aria-label="distance"
+                            fontIcon="signpost"></mat-icon></mat-button-toggle>
+                    <mat-button-toggle *ngIf="this.routingModes.includes('routing_mode_green')"
+                        value="routing_mode_green"><mat-icon aria-hidden="false" aria-label="green_index"
+                            fontIcon="eco"></mat-icon></mat-button-toggle>
+                    <mat-button-toggle *ngIf="this.routingModes.includes('routing_mode_slope')"
+                        value="routing_mode_slope"><mat-icon aria-hidden="false" aria-label="slope"
+                            fontIcon="landscape"></mat-icon></mat-button-toggle>
+                    <mat-button-toggle *ngIf="this.routingModes.includes('routing_mode_noise')"
+                        value="routing_mode_noise"><mat-icon aria-hidden="false" aria-label="noise"
+                            fontIcon="volume_up"></mat-icon></mat-button-toggle>
+                    <mat-button-toggle *ngIf="this.routingModes.includes('routing_mode_air')"
+                        value="routing_mode_air"><mat-icon aria-hidden="false" aria-label="air_quality"
+                            fontIcon="air"></mat-icon></mat-button-toggle>
+                    <mat-button-toggle *ngIf="this.routingModes.includes('routing_mode_traffic')"
+                        value="routing_mode_traffic"><mat-icon aria-hidden="false" aria-label="traffic"
+                            fontIcon="traffic"></mat-icon></mat-button-toggle>
+                    <mat-button-toggle *ngIf="this.routingModes.includes('routing_mode_feedback_ci')"
+                        value="routing_mode_feedback_ci"><mat-icon aria-hidden="false" aria-label="feedback-ci"
+                            fontIcon="comment-dots"></mat-icon></mat-button-toggle>
+                    <mat-button-toggle *ngIf="this.routingModes.includes('routing_mode_feedback_twa')"
+                        value="routing_mode_feedback_twa"><mat-icon aria-hidden="false" aria-label="feedback-twa"
+                            fontIcon="comment"></mat-icon></mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
+            <div class="directions-list">
+                <div class="direction-row" *ngFor="let direction of getDirectionsData()" (mouseenter)="goToEdge(direction.id)">
+                <p>{{ direction.cardinalDirection }} for {{ direction.distance }}m</p>
+                </div>
+            </div>
+        </mat-expansion-panel>
+    </div>
+    <div class="version-block" *ngIf="version as v">
+        <img class="logo-disclaimer" src="/assets/images/LOGO_ERC-FLAG_FP_v2.png" alt="image">
+        <div class="version-text">
+            <!-- version: {{ v.version }} -->
+            git-hash: {{ v.gitHash || 'unknown' }}, build-date: {{ v.buildDate && v.buildDate !== 'undefined' ? (v.buildDate | date:'yyyy-MM-dd') : 'unknown' }}
+        </div>
+        <button class="project-info-btn" (click)="openProjectInfo()" title="About Routify">
+            <mat-icon fontIcon="info"></mat-icon>
+            About Project
+        </button>
+    </div>
+
+</div>
