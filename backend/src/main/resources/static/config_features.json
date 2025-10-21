@@ -1,0 +1,163 @@
+{
+    "construction" : {
+        "weight_modifiers" : {
+            "walk" : 10.0,
+            "bike" : 10.0
+        }
+    },
+    "platform" : {
+        "weight_modifiers" : {
+            "walk" : 1.2
+        }
+    },
+    "bus_stop" : {
+        "weight_modifiers" : {
+            "walk" : 1.5,
+            "bike" : 1.5
+        }
+    },
+    "bridleway" : {
+        "weight_modifiers" : {
+            "walk" : 1.1,
+            "bike" : 1.1
+        }
+    },
+    "steps" : {
+        "weight_modifiers" : {
+            "walk" : 1.0,
+            "bike" : 10.0
+        }
+    },
+    "cycleway" : {
+        "weight_modifiers" : {
+            "bike" : 1.0
+        }
+    },
+    "pedestrian" : {
+        "weight_modifiers" : {
+            "walk" : 1.0,
+            "bike" : 3.0
+        }
+    },
+    "footway" : {
+        "weight_modifiers" : {
+            "walk" : 0.7,
+            "bike" : 3.0
+        }
+    },
+    "path" : {
+        "weight_modifiers" : {
+            "walk" : 1.2,
+            "bike" : 1.2
+        }
+    },
+    "track" : {
+        "weight_modifiers" : {
+            "bike" : 1.0
+        }
+    },
+    "motorway" : {
+        "weight_modifiers" : {
+            "drive" : 1.0
+        }
+    },
+    "motorway_link" : {
+        "weight_modifiers" : {
+            "drive" : 1.0
+        }
+    },
+    "service" : {
+        "weight_modifiers" : {
+            "walk" : 1.3,
+            "bike" : 1.5,
+            "drive" : 2.5
+        }
+    },
+    "road" : {
+        "weight_modifiers" : {
+            "walk" : 2.0,
+            "bike" : 1.2,
+            "drive" : 1.0
+        }
+    },
+    "residential" : {
+        "weight_modifiers" : {
+            "walk" : 50.0,
+            "bike" : 1.5,
+            "drive" : 1.5
+        }
+    },
+    "primary" : {
+        "weight_modifiers" : {
+            "bike" : 2.2,
+            "drive" : 1.0
+        }
+    },
+    "primary_link" : {
+        "weight_modifiers" : {
+            "drive" : 1.0
+        }
+    },
+    "secondary" : {
+        "weight_modifiers" : {
+            "bike" : 1.5,
+            "drive" : 1.0
+        }
+    },
+    "secondary_link" : {
+        "weight_modifiers" : {
+            "bike" : 1.5,
+            "drive" : 1.0
+        }
+    },
+    "tertiary" : {
+        "weight_modifiers" : {
+            "bike" : 1.5,
+            "drive" : 1.0
+        }
+    },
+    "tertiary_link" : {
+        "weight_modifiers" : {
+            "bike" : 1.5,
+            "drive" : 1.0
+        }
+    },
+    "trunk" : {
+        "weight_modifiers" : {
+            "drive" : 1.0
+        }
+    },
+    "trunk_link" : {
+        "weight_modifiers" : {
+            "drive" : 1.0
+        }
+    },
+    "living_street" : {
+        "weight_modifiers" : {
+            "walk" : 1.3,
+            "bike" : 1.1,
+            "drive" : 2.0
+        }
+    },
+    "corridor" : {
+        "weight_modifiers" : {
+            "walk" : 1.0,
+            "bike" : 5.0
+        }
+    },
+    "elevator" : {
+        "weight_modifiers" : {
+            "walk" : 1.0,
+            "bike" : 5.0
+        }
+    },
+    "unclassified" : {
+        "weight_modifiers" : {}
+    },
+    "proposed" : {
+        "weight_modifiers" : {}
+    },
+    "raceway" : {
+        "weight_modifiers" : {}
+    }
+}
