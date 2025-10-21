@@ -5,7 +5,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { isDevMode } from '@angular/core';
 // import custom components
 import * as L from 'leaflet';
 import { SelectAutocompleteComponent } from '../select-autocomplete/select-autocomplete.component'
@@ -66,7 +65,7 @@ export class ControlsComponent {
 
   @Output() requestCloseSidebar = new EventEmitter<void>();
 
-  public devMode: boolean = isDevMode() || ['localhost', '127.0.0.1', 'dev.routify.ch'].includes(window.location.hostname);
+  public devMode: boolean = true; // local-only setup
   public version: any;
   // charts collapsed by default
   public directionsVisible: boolean = false;
@@ -420,6 +419,7 @@ export class ControlsComponent {
       return false;
     }
 
+
     if (this.input_from!.value!.latitude == this.lastCoordinates.fromLat
       && this.input_from!.value!.longitude == this.lastCoordinates.fromLon
       && this.input_to!.value!.latitude == this.lastCoordinates.toLat
@@ -497,7 +497,6 @@ export class ControlsComponent {
   private updateOverlay(route: CustomRoute) {
     // calculate datasets of route meta data
     let [acc_altitude, acc_noise, acc_green, acc_pm10]: DataPoint[][] = getMetaData(route);
-    // console.log([acc_altitude, acc_noise, acc_green, acc_aqius]);
     // normalize data
     [acc_altitude, acc_noise, acc_green, acc_pm10] = normalizeDataPoints([acc_altitude, acc_noise, acc_green, acc_pm10]);
     // smooth data
@@ -514,7 +513,6 @@ export class ControlsComponent {
   public updateCharts(route: CustomRoute) {
     // calculate datasets of route meta data
     let [acc_altitude, acc_noise, acc_green, acc_pm10]: DataPoint[][] = getMetaData(route);
-    // console.log([acc_altitude, acc_noise, acc_green, acc_aqius]);
     // smooth data
     [acc_altitude, acc_noise, acc_green, acc_pm10] = smoothDataPoints([acc_altitude, acc_noise, acc_green, acc_pm10]);
     let color: string = getProperties(route.routingMode).lineColor;

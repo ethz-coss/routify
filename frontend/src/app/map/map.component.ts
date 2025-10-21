@@ -68,6 +68,7 @@ export class MapComponent implements AfterViewInit {
   private indicator: L.Marker | null = null;
   private markerFrom: L.Marker | null = null;
   private markerTo: L.Marker | null = null;
+  private dragStartPosition: L.LatLng | null = null;
 
   public queriedFeatures: L.FeatureGroup = new L.FeatureGroup();
   public queryModeHandler?: (e: L.LeafletMouseEvent) => Promise<void>;
@@ -90,7 +91,6 @@ export class MapComponent implements AfterViewInit {
   // Mobile controls methods
   public toggleMobileControls(): void {
     this.mobileControlsOpen = !this.mobileControlsOpen;
-    console.log('Mobile controls state:', this.mobileControlsOpen);
     
     // Force change detection
     this.cdr.detectChanges();
@@ -802,8 +802,21 @@ export class MapComponent implements AfterViewInit {
       this.markerTo.remove();
     }
 
-    let start: L.LatLng = new L.LatLng(route.startVertex.lat, route.startVertex.lon);
-    let end: L.LatLng = new L.LatLng(route.endVertex.lat, route.endVertex.lon);
+    // Prefer exact user-selected coordinates (from autocomplete inputs) over snapped route vertices
+    let start: L.LatLng;
+    let end: L.LatLng;
+
+    if (this.controls?.input_from?.value && this.controls.input_from.value.latitude && this.controls.input_from.value.longitude) {
+      start = L.latLng(this.controls.input_from.value.latitude, this.controls.input_from.value.longitude);
+    } else {
+      start = L.latLng(route.startVertex.lat, route.startVertex.lon);
+    }
+
+    if (this.controls?.input_to?.value && this.controls.input_to.value.latitude && this.controls.input_to.value.longitude) {
+      end = L.latLng(this.controls.input_to.value.latitude, this.controls.input_to.value.longitude);
+    } else {
+      end = L.latLng(route.endVertex.lat, route.endVertex.lon);
+    }
 
     // set start (A) and end (B) marker
     this.markerFrom = L.marker(start, { 
@@ -816,7 +829,8 @@ export class MapComponent implements AfterViewInit {
         alert('Start marker clicked!');
       })
       .on('dragstart', (event) => {
-        // Drag started
+        // Store the initial position when drag starts
+        this.dragStartPosition = (event.target as L.Marker).getLatLng();
       })
       .on('drag', (event) => {
         // Dragging
@@ -840,7 +854,8 @@ export class MapComponent implements AfterViewInit {
         alert('End marker clicked!');
       })
       .on('dragstart', (event) => {
-        // Drag started
+        // Store the initial position when drag starts
+        this.dragStartPosition = (event.target as L.Marker).getLatLng();
       })
       .on('drag', (event) => {
         // Dragging
@@ -885,37 +900,69 @@ export class MapComponent implements AfterViewInit {
     }
     
     var marker = event.target as L.Marker;
+    
+    // Get the exact coordinates from the drag end event
     const newLatLng = marker.getLatLng();
-    let oldLatLng: L.LatLng | null = null;
     let markerType = '';
     
-    if (marker === this.markerFrom && this.markerFrom) {
-      oldLatLng = this.markerFrom.getLatLng();
+    // Determine which marker was moved
+    if (marker === this.markerFrom) {
       markerType = 'Start (A)';
-    } else if (marker === this.markerTo && this.markerTo) {
-      oldLatLng = this.markerTo.getLatLng();
+    } else if (marker === this.markerTo) {
       markerType = 'End (B)';
     }
     
-    if (oldLatLng) {
-      // alert(`${markerType} marker repositioned!\n\nOld position: ${oldLatLng.lat.toFixed(6)}, ${oldLatLng.lng.toFixed(6)}\nNew position: ${newLatLng.lat.toFixed(6)}, ${newLatLng.lng.toFixed(6)}`);
-    } else {
-      // alert(`${markerType} marker repositioned!\n\nNew position: ${newLatLng.lat.toFixed(6)}, ${newLatLng.lng.toFixed(6)}`);
-    }
     
-    let address: Feature = await this.autocomplete.requestAddress(newLatLng);
-    input.value = address;
-    input.items = of([address]);
-    input.selectedItem = 0;
-    this.cdr.detectChanges();
-    
-    setTimeout(() => {
+    try {
+      // Create a feature with the exact new coordinates
+      let address: Feature = {
+        id: 0,
+        latitude: newLatLng.lat,
+        longitude: newLatLng.lng,
+        osm_id: -1,
+        country: '',
+        city: '',
+        countrycode: '',
+        postcode: '',
+        locality: '',
+        county: '',
+        type: '',
+        osm_type: '',
+        osm_key: '',
+        housenumber: '',
+        street: '',
+        district: '',
+        osm_value: '',
+        name: '',
+        state: '',
+        displayname: `${newLatLng.lat.toFixed(6)}, ${newLatLng.lng.toFixed(6)}`
+      };
+      
+      // Update the input field with the new coordinates
+      input.setValue(address);
+      input.updateField();
+      this.cdr.detectChanges();
+      
+      // Also directly update the controls component's input field reference
       if (this.controls) {
-        this.controls.forceRouteRecalculation();
-      } else {
-        console.error('Controls component not available');
+        if (marker === this.markerFrom) {
+          this.controls.input_from = input;
+        } else if (marker === this.markerTo) {
+          this.controls.input_to = input;
+        }
       }
-    }, 500);
+      
+      // Wait for the input field to be fully updated before recalculating route
+      setTimeout(() => {
+        if (this.controls) {
+          this.controls.forceRouteRecalculation();
+        } else {
+          console.error('Controls component not available');
+        }
+      }, 1000); // Increased delay to ensure input is fully updated
+    } catch (error) {
+      console.error('Error updating address after drag:', error);
+    }
   }
 
   public async onMove(event: L.LeafletEvent, input: SelectAutocompleteComponent): Promise<void> {
@@ -945,10 +992,9 @@ export class MapComponent implements AfterViewInit {
     
     let address: Feature = await this.autocomplete.requestAddress(newLatLng);
     
-    // Directly update the input value
-    input.value = address;
-    input.items = of([address]);
-    input.selectedItem = 0;
+    // Properly update the input field with the new address
+    input.setValue(address);
+    input.updateField();
     
     // Force change detection
     this.cdr.detectChanges();

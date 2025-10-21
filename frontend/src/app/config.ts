@@ -1,10 +1,6 @@
-import { isDevMode } from '@angular/core';
-
 export interface AppConfig {
-  // API Endpoints
+  // API Endpoints (local-only)
   backendUrl: string;
-  localBackendUrl: string;
-  devBackendUrl: string;
   photonUrl: string;
   
   // Map Services
@@ -35,18 +31,14 @@ export interface AppConfig {
   // Thunderforest URLs
   thunderforestBaseUrl: string;
   
-  // Development
-  isLocal: boolean;
-  isDevMode: boolean;
+  // Development flags removed; local-only setup
 }
 
 // Configuration object with all static values
 export const config: AppConfig = {
-  // API Endpoints
-  backendUrl: 'https://routify.ch/api/v2',
-  localBackendUrl: 'http://localhost:8080',
-  devBackendUrl: 'https://dev.routify.ch/api/v2',
-  photonUrl: 'https://dev.routify.ch/photon/',
+  // API Endpoints (local-only)
+  backendUrl: 'http://localhost:8080',
+  photonUrl: 'http://localhost/photon/',
   
   // Map Services
   thunderforestApiKey: '7c80840849bd4b99a9dcd1372204947e',
@@ -76,7 +68,5 @@ export const config: AppConfig = {
   // Thunderforest URLs
   thunderforestBaseUrl: 'https://tile.thunderforest.com',
   
-  // Development - using the same detection logic as before
-  isLocal: false, // This will be toggled by the backend service
-  isDevMode: isDevMode() || ['localhost', '127.0.0.1', 'dev.routify.ch'].includes(window.location.hostname)
+  // No environment switching; always local
 };

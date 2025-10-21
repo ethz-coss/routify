@@ -1,9 +1,10 @@
-import { AfterViewInit, ChangeDetectorRef, Component, isDevMode, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 // import custom components
 import { MapComponent } from '../map/map.component';
 import { ControlsComponent } from '../controls/controls.component';
+import { HealthStatusComponent } from '../health-status/health-status.component';
 import Swal from 'sweetalert2';
 import { Presets } from '../global-presets';
 import { VersionService } from 'src/version.service';
@@ -15,7 +16,8 @@ import { VersionService } from 'src/version.service';
     CommonModule,
     // import custom components
     MapComponent,
-    ControlsComponent
+    ControlsComponent,
+    HealthStatusComponent
   ],
   templateUrl: './base.component.html',
   styleUrl: './base.component.css'
@@ -35,7 +37,7 @@ export class BaseComponent implements AfterViewInit {
 
   async ngAfterViewInit(): Promise<void> {
     // // welcome screen by Routy (only in deployment)
-    // if(!isDevMode()) await Swal.fire({
+    // await Swal.fire({
     //   background: Presets.background,
     //   color: Presets.textColor,
     //   title: "Hi there!",

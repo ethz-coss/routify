@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { isDevMode } from '@angular/core';
 import { CustomEdge } from './custom-edge.model';
 import { CustomRoute } from './custom-route.model';
 import { config } from './app/config';
@@ -11,8 +10,7 @@ import { config } from './app/config';
 })
 export class BackendService {
     httpOptions: any;
-    isLocal: boolean = config.isLocal;
-    activeBackendUrl: string = this.buildBackendUrl();
+    activeBackendUrl: string = config.backendUrl;
     
     constructor(private http: HttpClient) {
         this.httpOptions = {
@@ -24,17 +22,7 @@ export class BackendService {
         };
     }
 
-    private buildBackendUrl(): string {
-        return this.isLocal
-            ? config.localBackendUrl
-            : (config.isDevMode ? config.devBackendUrl : config.backendUrl);
-    }
-
-    toggleLocal() {
-        this.isLocal = !this.isLocal
-        this.activeBackendUrl = this.buildBackendUrl();
-        return this.isLocal
-    }
+    // Environment switching removed; always use local backend
 
     async requestRoute(mode: string, data: Object): Promise<CustomRoute[]> {
         const url: string = `${this.activeBackendUrl}/route/${mode}/`;

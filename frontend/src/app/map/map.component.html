@@ -3,15 +3,13 @@
     <div class="left-sidebar" [class.active]="baseComponent.sidebarOpen" [style.display]="isMobile() ? 'none' : 'block'">
         <div class="sidebar-header">
             <h3>Controls</h3>
-            <div class="sidebar-header-actions-inline" *ngIf="controls?.devMode">
+            <div class="sidebar-header-actions-inline" *ngIf="false">
                 <div class="dev-controls">
                     <span class="dev-badge">DEV</span>
                     <button mat-icon-button class="preset-toggle-btn" (click)="controls.presetAddress()" title="preset address">
                         <mat-icon fontIcon="alt_route"></mat-icon>
                     </button>
-                    <button mat-icon-button class="api-toggle-btn" (click)="controls.routing.toggleLocal()" title="toggle API source">
-                        <mat-icon [fontIcon]="controls.routing.isLocal ? 'cloud_off' : 'cloud'"></mat-icon>
-                    </button>
+                    <!-- API toggle removed in local-only setup -->
                 </div>
             </div>
             <button class="close-btn" (click)="closeLeftSidebar()">×</button>

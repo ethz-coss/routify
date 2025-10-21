@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+pydantic
+typing
+requests
+pillow
+numpy
+pyproj
+contextlib2
+rasterio
+shapely
+matplotlib

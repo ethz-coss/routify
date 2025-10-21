@@ -1,4 +1,4 @@
-import { Injectable, isDevMode } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
@@ -44,41 +44,36 @@ export class AutoCompleteService {
 
     async requestAddress(input: L.LatLng) {
         if(!input) throw Error("AUTOCOMPLETE_INVALID_COORDINATES");
-        const url: string = `${photonUrl}reverse?lon=${encodeURIComponent(input.lng)}&lat=${encodeURIComponent(input.lat)}`;
-
-        return await fetch(url)
-            .then((response) => response.json())
-            .then((data) => {
-                let el = data.features[0];
-                return {
-                    'id': 0,
-                    'latitude': el.geometry.coordinates[1],
-                    'longitude': el.geometry.coordinates[0],
-                    'osm_id': el.properties.osm_id,
-                    'country': el.properties.country,
-                    'city': el.properties.city,
-                    'countrycode': el.properties.countrycode,
-                    'postcode': el.properties.postcode,
-                    'locality': el.properties.locality,
-                    'county': el.properties.country,
-                    'type': el.properties.type,
-                    'osm_type': el.properties.osm_type,
-                    'osm_key': el.properties.osm_key,
-                    'housenumber': el.properties.housenumber,
-                    'street': el.properties.street,
-                    'district': el.properties.district,
-                    'osm_value': el.properties.osm_value,
-                    'name': el.properties.name,
-                    'state': el.properties.state,
-                    'displayname': `${value(el.properties.name)}, ${value(el.properties.street)} ${value(el.properties.housenumber)}, ${value(el.properties.postcode)} ${value(el.properties.city)}`
-                }
-        });
+        
+        // Just return the exact coordinates - backend will find nearest vertex for pathfinding
+        return {
+            'id': 0,
+            'latitude': input.lat,
+            'longitude': input.lng,
+            'osm_id': -1, // No OSM ID for custom coordinates
+            'country': '',
+            'city': '',
+            'countrycode': '',
+            'postcode': '',
+            'locality': '',
+            'county': '',
+            'type': '',
+            'osm_type': '',
+            'osm_key': '',
+            'housenumber': '',
+            'street': '',
+            'district': '',
+            'osm_value': '',
+            'name': '',
+            'state': '',
+            'displayname': `${input.lat.toFixed(6)}, ${input.lng.toFixed(6)}`
+        };
     }
 
     async requestSuggestions(input: string): Promise<Feature[]> {
         if(!input) return [];
         
-        const url: string = `${photonUrl}api/?q=${encodeURIComponent(input)}&lat=47.382215169614895&lon=8.537124125464356`;
+        const url: string = `${photonUrl}api?q=${encodeURIComponent(input)}&lat=47.382215169614895&lon=8.537124125464356`;
 
         return await fetch(url)
             .then((response) => response.json())
@@ -111,7 +106,8 @@ export class AutoCompleteService {
                     id++;
                 }
             );
-            return features.filter(el => el.state == 'Zurich');
+            const filteredFeatures = features.filter(el => el.state == 'Zurich' || el.state == 'Zürich');
+            return filteredFeatures;
         });
     }
 }
