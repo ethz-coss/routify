@@ -6,7 +6,7 @@ WORKDIR /home/app
 RUN mvn package -DskipTests
 
 # Package stage
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk
 COPY --from=build /home/app/target/*.jar routify-1.0.0.jar
 
 # curl only for container healthcheck; remove if not needed

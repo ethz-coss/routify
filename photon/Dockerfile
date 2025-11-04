@@ -1,10 +1,10 @@
 # Photon geocoder service
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk
 
 ENV PHOTON_VERSION=0.7.0
 
 # Install curl and wget
-RUN apt-get update && apt-get install -y curl wget && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y curl wget ca-certificates --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 # Download Photon JAR
 RUN mkdir -p /photon && \
@@ -12,18 +12,25 @@ RUN mkdir -p /photon && \
 
 EXPOSE 2322
 
-# Create startup script that creates index first
-RUN echo '#!/bin/bash' > /start-photon.sh && \
-    echo 'echo "Waiting for Nominatim to be ready..."' >> /start-photon.sh && \
-    echo 'while ! nc -z nominatim 5432; do sleep 1; done' >> /start-photon.sh && \
-    echo 'echo "Creating Photon index..."' >> /start-photon.sh && \
-    echo 'java -jar /photon/photon-0.7.0.jar -host nominatim -database nominatim -user nominatim -password password -nominatim-import' >> /start-photon.sh && \
-    echo 'echo "Starting Photon server..."' >> /start-photon.sh && \
-    echo 'java -jar /photon/photon-0.7.0.jar -listen-port 2322 -host nominatim -database nominatim -user nominatim -password password' >> /start-photon.sh && \
-    chmod +x /start-photon.sh
+# Create startup script that waits for Nominatim and initializes Photon
+RUN cat <<'EOF' > /start-photon.sh
+#!/bin/bash
+set -euo pipefail
+
+echo "Waiting for Nominatim to be ready..."
+while ! nc -z nominatim 5432; do
+  sleep 1
+done
+
+echo "Creating Photon index..."
+java -jar /photon/photon-${PHOTON_VERSION}.jar -host nominatim -database nominatim -user nominatim -password password -nominatim-import
+
+echo "Starting Photon server..."
+exec java -jar /photon/photon-${PHOTON_VERSION}.jar -listen-port 2322 -host nominatim -database nominatim -user nominatim -password password
+EOF
+RUN chmod +x /start-photon.sh
 
 # Install netcat for connection testing
 RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
 
 CMD ["/start-photon.sh"]
-

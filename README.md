@@ -107,19 +107,19 @@ graph TB
 
 ## People & Research
 
-This project is developed as part of research at **ETH Zurich** and is associated with the **Center for Open Science and Scholarship (COSS)**.
+This project is developed as part of research at **ETH Zurich** and is associated with the **Professorship  of Computational Social Science (COSS)**.
 
 ### Research Paper
-- **Title**: "Environmental-Aware Routing: A Multi-Criteria Approach for Sustainable Urban Navigation"
-- **Authors**: Alexander Eggerth, Sachit Mahajan, and collaborators
-- **Institution**: ETH Zurich, Center for Open Science and Scholarship
+- **Title**: "Democratizing Urban Mobility Through an Open-Source, Multi-Criteria Route Recommendation System"
+- **Authors**: Alexander Eggerth, Sachit Mahajan, Javier Argota Sánchez-Vaquerizo and Dirk Helbing
+- **Institution**: ETH Zurich, COSS
 - **Publication**: [ACM Digital Library](https://dl.acm.org/doi/10.1145/3640457.3691702)
 
 ### Key Contributors
-- **Sachit Mahajan** - Research Supervisor
+- **Sachit Mahajan** (sachit.mahajan@gess.ethz.ch) - Research Supervisor
 - **Alexander Eggerth** (aeggerth@ethz.ch) - Lead Developer
-- **Javier Argota Sanchez** - Research Collaborator
-- **Christoph Schweighofer** - Developer
+- **Javier Argota Sanchez** (javier.argota@gess.ethz.ch) - Research Collaborator
+- **Christoph Schweighofer** (christoph.schweighofer@inf.ethz.ch) - Developer
 - **COSS Team** - Research Support and Guidance
 
 ### Research Context
