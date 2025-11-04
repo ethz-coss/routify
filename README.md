@@ -18,7 +18,7 @@ Routify is a research project that goes beyond traditional navigation by conside
 - **Greener** - Routes through parks and green spaces
 - **More pleasant** - Considering altitude and scenic factors
 
-The system uses real-time environmental data and advanced routing algorithms to provide personalized recommendations based on user preferences and current conditions.
+The system uses environmental data and advanced routing algorithms to provide personalized recommendations based on user preferences and current conditions.
 
 ## Key Features
 
@@ -27,7 +27,6 @@ The system uses real-time environmental data and advanced routing algorithms to 
 - 🎯 **Personalized Preferences**: Adjustable weights for different environmental factors
 - 🗺️ **Interactive Map**: Real-time route visualization with environmental overlays
 - 📊 **Route Analytics**: Detailed analysis of environmental conditions along routes
-- 🔄 **Real-Time Data**: Live air quality and environmental data integration
 - 🏙️ **Zurich Focus**: Optimized for the Zurich metropolitan area
 - 🐳 **Docker Ready**: Easy deployment with Docker Compose
 
@@ -90,7 +89,6 @@ graph TB
 ### Backend
 - **Spring Boot** - Java framework
 - **JGraphT** - Graph algorithms
-- **Apache HTTP Client** - External API integration
 - **Maven** - Dependency management
 
 ### Data & Services
@@ -150,12 +148,12 @@ This builds and starts:
 - **photon** on port 2322 (Fast geocoding search API)
 - **airqualityservice** on port 8000 (Air quality data service)
 
-Initial startup times:
-- **Backend**: ~2 minutes (120s start_period)
-- **Frontend**: ~30 seconds (30s start_period) 
-- **Nominatim**: ~5 minutes (300s start_period) for first-time data import
-- **Photon**: ~30 seconds (30s start_period) after Nominatim is ready
+Initial startup times (depending on downlink speed):
+- **Nominatim**: ~10 minutes (600s start_period) for first-time data import
+- **Photon**: ~60 seconds (60s start_period) after Nominatim is ready
 - **Air Quality Service**: ~30 seconds (30s start_period)
+- **Backend**: ~2 minutes (120s start_period)
+- **Frontend**: ~60 seconds (60s start_period) 
 
 ### Access URLs
 - **Frontend**: http://localhost:80
@@ -404,19 +402,25 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 If you use this code in your research, please cite our work:
 
 ```bibtex
-@article{eggerth2024environmental,
-  title={Environmental-Aware Routing: A Multi-Criteria Approach for Sustainable Urban Navigation},
-  author={Eggerth, Alexander and Mahajan, Sachit and others},
-  journal={ACM Digital Library},
-  year={2024},
-  publisher={ACM}
+@inproceedings{Eggerth2024,
+   address = {New York, NY, USA},
+   author = {Eggerth, Alexander and {Argota S{\'{a}}nchez-Vaquerizo}, Javier and Helbing, Dirk and Mahajan, Sachit},
+   booktitle = {18th ACM Conference on Recommender Systems},
+   doi = {10.1145/3640457.3691702},
+   isbn = {9798400705052},
+   month = {oct},
+   pages = {1073--1078},
+   publisher = {ACM},
+   title = {{Democratizing Urban Mobility Through an Open-Source, Multi-Criteria Route Recommendation System}},
+   url = {https://dl.acm.org/doi/10.1145/3640457.3691702},
+   year = {2024}
 }
 ```
 
 ## Contact
 
 - **Lead Developer**: Alexander Eggerth (aeggerth@ethz.ch)
-- **Institution**: ETH Zurich, Center for Open Science and Scholarship
+- **Institution**: ETH Zurich, Professorship for Computational Social Science (COSS)
 - **GitHub**: [ethz-coss/routify](https://github.com/ethz-coss/routify)
 - **Research Paper**: [ACM Digital Library](https://dl.acm.org/doi/10.1145/3640457.3691702)
 

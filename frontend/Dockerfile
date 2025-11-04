@@ -25,6 +25,9 @@ RUN npm run build
 # Production stage with nginx
 FROM nginx:alpine
 
+# Install curl for readiness checks
+RUN apk add --no-cache curl
+
 # Copy built application from build stage
 COPY --from=build /app/dist/routify /usr/share/nginx/html
 

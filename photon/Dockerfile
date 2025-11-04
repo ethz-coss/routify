@@ -17,13 +17,21 @@ RUN cat <<'EOF' > /start-photon.sh
 #!/bin/bash
 set -euo pipefail
 
-echo "Waiting for Nominatim to be ready..."
+echo "Waiting for Nominatim database port..."
 while ! nc -z nominatim 5432; do
   sleep 1
 done
 
+echo "Waiting for Nominatim HTTP status..."
+until curl -fs http://nominatim:8080/status >/dev/null; do
+  sleep 5
+done
+
 echo "Creating Photon index..."
-java -jar /photon/photon-${PHOTON_VERSION}.jar -host nominatim -database nominatim -user nominatim -password password -nominatim-import
+until java -jar /photon/photon-${PHOTON_VERSION}.jar -host nominatim -database nominatim -user nominatim -password password -nominatim-import; do
+  echo "Photon index import failed, retrying in 10s..."
+  sleep 10
+done
 
 echo "Starting Photon server..."
 exec java -jar /photon/photon-${PHOTON_VERSION}.jar -listen-port 2322 -host nominatim -database nominatim -user nominatim -password password
