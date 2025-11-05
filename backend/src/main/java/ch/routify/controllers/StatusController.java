@@ -14,7 +14,7 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.ParseException;
 
 /**
- * Controller responsible for handling API endpoints related to the system status within the COSS Maps application.
+ * Controller responsible for handling API endpoints related to the system status within the Routifys application.
  * This controller provides endpoints for retrieving general system status information such as vertex and edge counts in the system's graph,
  * as well as detailed boundary information.
  * 

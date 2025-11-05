@@ -1,0 +1,6 @@
+folium
+geopandas
+requests
+shapely
+ipython
+ipykernel

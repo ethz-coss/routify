@@ -47,6 +47,15 @@ The Air Quality Service is a FastAPI-based microservice that:
 - Converts WMS image data to PM10 values using color mapping
 - Provides REST API endpoints for coordinate-based PM10 queries
 
+
+### Seed File Naming
+
+Seed snapshots follow the pattern `seed_<unix_timestamp>.png`, where the timestamp is the UTC epoch seconds when the map was captured. The example file `seed_1752321204.png` encodes `1752321204`, which corresponds to:
+- GMT: Saturday, July 12, 2025 11:53:24 AM
+- Your local time (UTC+02:00 DST example): Saturday, July 12, 2025 1:53:24 PM
+
+This makes it easy to compare seed versions chronologically.
+
 ## Features
 
 - **Live Mode**: Fetches real-time data from OstLuft WMS every 5 minutes
