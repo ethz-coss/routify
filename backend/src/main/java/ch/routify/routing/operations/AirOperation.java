@@ -39,7 +39,7 @@ public class AirOperation implements WeightOperation {
 
             if (edge.getPm_10() >= 0) {
                 double exponent = Math.exp(edge.getPm_10() - CustomEdge.minPm10);
-                weight = distance + alpha * exponent;
+                weight = weight + alpha * exponent;
             } else {
                 weight = Double.POSITIVE_INFINITY;
             }

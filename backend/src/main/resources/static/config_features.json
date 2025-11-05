@@ -53,6 +53,7 @@
     },
     "track" : {
         "weight_modifiers" : {
+            "walk" : 1.1,
             "bike" : 1.0
         }
     },

@@ -352,10 +352,10 @@ export class ControlsComponent {
 
   public getSliderDescription(): string {
     switch (this.activeSliderMode) {
-      case 'routing_mode_slope': return 'Adjust how strongly elevation impacts the route.';
-      case 'routing_mode_green': return 'Adjust how strongly green areas are preferred.';
-      case 'routing_mode_noise': return 'Adjust how strongly quiet roads are preferred.';
-      case 'routing_mode_air': return 'Adjust how strongly low PM10 exposure is preferred.';
+      case 'routing_mode_slope': return 'Adjust the maximum slope of the route.<br>(this does not exclude segments with more slope but tries to avoid them as much as possible)';
+      case 'routing_mode_green': return 'Adjust how strongly green areas are preferred.<br>(tradeoff between greenness and distance)';
+      case 'routing_mode_noise': return 'Adjust how strongly quiet roads are preferred.<br>(tradeoff between noise and distance)';
+      case 'routing_mode_air': return 'Adjust how strongly low PM10 exposure is preferred.<br>(tradeoff between air quality and distance)';
       default: return '';
     }
   }

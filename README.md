@@ -156,6 +156,8 @@ Initial startup times (depending on downlink speed):
 - **Backend**: ~2 minutes (120s start_period)
 - **Frontend**: ~60 seconds (60s start_period) 
 
+After the stack is up, wait until `docker ps` shows each service with `STATUS` ending in `healthy`—services still reporting `(health: starting)` are not ready for use yet.
+
 ### Access URLs
 - **Frontend**: http://localhost:80
 - **Backend API**: http://localhost:8080/

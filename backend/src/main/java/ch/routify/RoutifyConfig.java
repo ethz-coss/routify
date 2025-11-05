@@ -19,7 +19,7 @@ public class RoutifyConfig {
     
     // Allowed feature sets per transport mode
     private final String[] allowedFeaturesWalk = {
-        "construction", "platform", "bus_stop", "bridleway", "steps", "pedestrian", "footway", "path",
+        "construction", "platform", "bus_stop", "bridleway", "steps", "pedestrian", "footway", "path", "track",
         "service", "road", "residential", "living_street", "corridor", "elevator"
     };
 

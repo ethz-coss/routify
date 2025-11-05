@@ -76,7 +76,7 @@
         <app-parameter-slider #context_slider [default]="getDefaultForActiveSlider()" [max]="getMaxForActiveSlider()"
             [label]="getLabelForActiveSlider()" (mouseup)="onSliderMouseUp()"></app-parameter-slider>
     </div>
-    <div class="context-slider-tip" *ngIf="activeSliderMode">{{ getSliderDescription() }}</div>
+    <div class="context-slider-tip" *ngIf="activeSliderMode" [innerHTML]="getSliderDescription()"></div>
 
 
 
