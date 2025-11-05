@@ -1,6 +1,5 @@
 package ch.routify.routing;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.jgrapht.GraphPath;
@@ -8,6 +7,7 @@ import org.jgrapht.GraphPath;
 import ch.routify.graph.CustomAsSubgraph;
 import ch.routify.graph.CustomEdge;
 import ch.routify.graph.CustomVertex;
+import ch.routify.routing.config.RoutingModeService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -35,56 +35,39 @@ public class CustomRoute {
     private double traveltime = 0;
 
     private JSONArray directions;
-    
+
+    private final RoutingModeService routingModeService;
+    private final String[] allowedFeatures;
+
     private boolean includeTraveltime;
     private boolean includeDirections;
 
-    public CustomRoute (JSONObject data, Tuple2<CustomVertex, CustomVertex> endpoints, CustomAsSubgraph<CustomVertex, CustomEdge> graph, 
-        HashMap<CustomEdge, Double> weights, String routingMode, String transportMode, boolean includeDirections, boolean includeTraveltime) throws Exception {
+    public CustomRoute (RoutingModeService routingModeService, String[] allowedFeatures, JSONObject data,
+        Tuple2<CustomVertex, CustomVertex> endpoints, CustomAsSubgraph<CustomVertex, CustomEdge> graph,
+        HashMap<CustomEdge, Double> weights, String routingMode, String transportMode,
+        boolean includeDirections, boolean includeTraveltime) throws Exception {
+
+        this.routingModeService = routingModeService;
+        this.allowedFeatures = allowedFeatures;
 
         this.routingMode = routingMode;
         this.transportMode = transportMode;
         this.includeTraveltime = includeTraveltime;
         this.includeDirections = includeDirections;
-        
+
         this.calculate(data, endpoints, graph, weights, routingMode, transportMode, includeDirections, includeTraveltime);
     }
-    
+
     private void calculate(JSONObject data, Tuple2<CustomVertex, CustomVertex> endpoints, CustomAsSubgraph<CustomVertex, CustomEdge> graph, 
         HashMap<CustomEdge, Double> weights, String routing_mode, String transport_mode, boolean includeDirections, boolean includeTraveltime) throws Exception {
-                
-        HashMap<CustomEdge, Double> tmpWeights = new HashMap<CustomEdge, Double>();
-        WeightSupplier ws = new WeightSupplier(graph.edgeSet(), weights);
-
-        switch(routing_mode) {
-            case "routing_mode_slope":
-                double slope = Double.valueOf(data.get("slope").toString());
-                tmpWeights = ws.slope(slope);
-            break;
-            case "routing_mode_green":
-                double green_index = Double.valueOf(data.get("green_index").toString());
-                tmpWeights = ws.greenIndex(green_index);
-            break;
-            case "routing_mode_noise":
-                double noise = Double.valueOf(data.get("noise").toString());
-                tmpWeights = ws.noise(noise);
-            break;
-            case "routing_mode_air":
-                double air = Double.valueOf(data.get("air").toString());
-                tmpWeights = ws.air(air);
-            break;
-            case "routing_mode_feedback_ci":
-                double feedbackCi = Double.valueOf(data.get("feedback").toString());
-                tmpWeights = ws.feedbackCi(feedbackCi);
-            break;
-            case "routing_mode_feedback_twa":
-                double feedbackTwa = Double.valueOf(data.get("feedback").toString());
-                tmpWeights = ws.feedbackCi(feedbackTwa);
-            break;
-            default:
-                tmpWeights = weights;
-            break;
-        }
+        HashMap<CustomEdge, Double> tmpWeights = routingModeService.computeWeights(
+            routing_mode,
+            transport_mode,
+            data,
+            graph.edgeSet(),
+            weights,
+            allowedFeatures
+        );
 
         GraphPath<CustomVertex, CustomEdge> graphPath = Routing.aStar(endpoints._1(), endpoints._2(), tmpWeights, graph);
         if(graphPath.getLength() == 0) throw new Exception("THERE_EXISTS_NO_PATH");
@@ -193,8 +176,6 @@ public class CustomRoute {
             edgeJson.put("aqius", edge.getAqius());
             edgeJson.put("highway", edge.getHighway());
             edgeJson.put("maxspeed", edge.getMaxspeed());
-            edgeJson.put("feedbackCi", edge.getFeedbackCi());
-            edgeJson.put("feedbackTwa", edge.getFeedbackTwa());
             edgeJson.put("bearing", edge.getBearing());
             edgeJson.put("cardinalDirection", edge.getCardinalDirection());
             edgeJson.put("pm_10", edge.getPm_10());

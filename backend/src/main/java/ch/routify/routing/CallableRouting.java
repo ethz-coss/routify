@@ -6,6 +6,7 @@ import java.util.concurrent.Callable;
 import ch.routify.graph.CustomAsSubgraph;
 import ch.routify.graph.CustomEdge;
 import ch.routify.graph.CustomVertex;
+import ch.routify.routing.config.RoutingModeService;
 import net.minidev.json.JSONObject;
 import scala.Tuple2;
 
@@ -32,6 +33,10 @@ public class CallableRouting implements Callable<CustomRoute> {
     private boolean directions;
     /** Whether to include travel time in the response. */
     private boolean traveltime;
+    /** Service responsible for routing mode configuration. */
+    private RoutingModeService routingModeService;
+    /** Allowed feature set for the current transport mode. */
+    private String[] allowedFeatures;
 
     /**
      * Constructs a new instance of {@code CallableRouting} with the specified parameters.
@@ -45,7 +50,10 @@ public class CallableRouting implements Callable<CustomRoute> {
      * @param _directions     Whether to include directions in the response.
      * @param _traveltime     Whether to include travel time in the response.
      */
-    public CallableRouting(CustomAsSubgraph<CustomVertex, CustomEdge> _graph, JSONObject _data, Tuple2<CustomVertex, CustomVertex> _endpoints, HashMap<CustomEdge, Double> _weights, String _routing_mode, String _transport_mode, boolean _directions, boolean _traveltime) {
+    public CallableRouting(CustomAsSubgraph<CustomVertex, CustomEdge> _graph, JSONObject _data,
+            Tuple2<CustomVertex, CustomVertex> _endpoints, HashMap<CustomEdge, Double> _weights,
+            String _routing_mode, String _transport_mode, boolean _directions, boolean _traveltime,
+            RoutingModeService routingModeService, String[] allowedFeatures) {
         this.graph = _graph;
         this.data = _data;
         this.endpoints = _endpoints;
@@ -54,6 +62,8 @@ public class CallableRouting implements Callable<CustomRoute> {
         this.transport_mode = _transport_mode;
         this.directions = _directions;
         this.traveltime = _traveltime;
+        this.routingModeService = routingModeService;
+        this.allowedFeatures = allowedFeatures;
     }
 
     /**
@@ -64,6 +74,6 @@ public class CallableRouting implements Callable<CustomRoute> {
      */
     @Override
     public CustomRoute call() throws Exception {
-        return new CustomRoute(data, endpoints, graph, weights, routing_mode, transport_mode, directions, traveltime);
+        return new CustomRoute(routingModeService, allowedFeatures, data, endpoints, graph, weights, routing_mode, transport_mode, directions, traveltime);
     }    
 }

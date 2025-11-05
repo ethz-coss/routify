@@ -102,6 +102,21 @@ services:
       retries: 3
       start_period: 60s
 
+  docs:
+    build:
+      context: .
+      dockerfile: docs/Dockerfile
+    ports:
+      - "8085:80"
+    networks:
+      - routify-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
 networks:
   routify-network:
     driver: bridge

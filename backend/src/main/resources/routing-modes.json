@@ -1,0 +1,26 @@
+{
+  "routing_mode_distance": [
+    { "operation": "base" },
+    { "operation": "filter-disallowed" }
+  ],
+  "routing_mode_green": [
+    { "operation": "base" },
+    { "operation": "filter-disallowed" },
+    { "operation": "green-index", "params": { "impactField": "green_index", "accelerate": 2.0 } }
+  ],
+  "routing_mode_slope": [
+    { "operation": "base" },
+    { "operation": "filter-disallowed" },
+    { "operation": "slope", "params": { "thresholdField": "slope" } }
+  ],
+  "routing_mode_noise": [
+    { "operation": "base" },
+    { "operation": "filter-disallowed" },
+    { "operation": "noise", "params": { "impactField": "noise", "accelerate": 1.0 } }
+  ],
+  "routing_mode_air": [
+    { "operation": "base" },
+    { "operation": "filter-disallowed" },
+    { "operation": "air", "params": { "impactField": "air", "alpha": 20.0 } }
+  ]
+}

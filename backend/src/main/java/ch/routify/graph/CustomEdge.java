@@ -2,8 +2,6 @@ package ch.routify.graph;
 
 import java.util.HashMap;
 import java.util.Set;
-import java.util.UUID;
-
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
@@ -49,12 +47,6 @@ public class CustomEdge extends DefaultWeightedEdge {
     // additional meta data
     @Getter
     public String highway;
-
-    // feedback values
-    @Getter
-    public double feedbackCi = 2;
-    @Getter
-    public double feedbackTwa = 2;
 
     // bearing for directions
     @Getter
@@ -339,14 +331,6 @@ public class CustomEdge extends DefaultWeightedEdge {
     
     public double getMaxspeed() {
         return maxspeed;
-    }
-    
-    public double getFeedbackCi() {
-        return feedbackCi;
-    }
-    
-    public double getFeedbackTwa() {
-        return feedbackTwa;
     }
     
     public double getBearing() {

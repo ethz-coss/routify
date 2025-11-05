@@ -6,6 +6,7 @@ import java.util.concurrent.Future;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ import ch.routify.revgeocode.RevGeoCode;
 import ch.routify.routing.CallableRouting;
 import ch.routify.routing.CustomRoute;
 import ch.routify.routing.SubGraphRouting;
+import ch.routify.routing.config.RoutingModeService;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -37,7 +39,7 @@ import scala.Tuple2;
  * <p>
  * In case of errors during route calculation, it responds with an appropriate error message and HTTP status code.
  * 
- * @author aeggerth@ethz.ch
+ * @author Alexander Eggerth
  * @version 1.0
  */
 @RestController
@@ -45,67 +47,16 @@ import scala.Tuple2;
 @RequestMapping("/route")
 public class RoutingController {
 
-    @PostMapping(value = "routing_mode_distance/")
-    public ResponseEntity<JSONArray> calcRouteDistance(@RequestBody String request, 
-            @RequestParam(defaultValue = "true") boolean directions,
-            @RequestParam(defaultValue = "true") boolean traveltime) throws Exception {
-        return buildResponseEntity(request, "routing_mode_distance", directions, traveltime);
-    }
+    private final RoutingModeService routingModeService = new RoutingModeService();
 
-    @PostMapping(value = "routing_mode_green/")
-    public ResponseEntity<JSONArray> calcRouteGreen(@RequestBody String request, 
+    @PostMapping(value = "{routingMode}/")
+    public ResponseEntity<JSONArray> calcRoute(@PathVariable String routingMode, @RequestBody String request,
             @RequestParam(defaultValue = "true") boolean directions,
             @RequestParam(defaultValue = "true") boolean traveltime) throws Exception {
-        return buildResponseEntity(request, "routing_mode_green", directions, traveltime);
-    }
-
-    @PostMapping(value = "routing_mode_slope/")
-    public ResponseEntity<JSONArray> calcRouteSlope(@RequestBody String request, 
-            @RequestParam(defaultValue = "true") boolean directions,
-            @RequestParam(defaultValue = "true") boolean traveltime) throws Exception {
-        return buildResponseEntity(request, "routing_mode_slope", directions, traveltime);
-    }
-
-    @PostMapping(value = "routing_mode_noise/")
-    public ResponseEntity<JSONArray> calcRouteNoise(@RequestBody String request, 
-            @RequestParam(defaultValue = "true") boolean directions,
-            @RequestParam(defaultValue = "true") boolean traveltime) throws Exception {
-        return buildResponseEntity(request, "routing_mode_noise", directions, traveltime);
-    }
-
-    @PostMapping(value = "routing_mode_air/")
-    public ResponseEntity<JSONArray> calcRouteAir(@RequestBody String request, 
-            @RequestParam(defaultValue = "true") boolean directions,
-            @RequestParam(defaultValue = "true") boolean traveltime) throws Exception {
-        return buildResponseEntity(request, "routing_mode_air", directions, traveltime);
-    }
-
-    @PostMapping(value = "routing_mode_traffic/")
-    public ResponseEntity<JSONArray> calcRouteTraffic(@RequestBody String request, 
-            @RequestParam(defaultValue = "true") boolean directions,
-            @RequestParam(defaultValue = "true") boolean traveltime) throws Exception {
-        return buildResponseEntity(request, "routing_mode_traffic", directions, traveltime);
-    }
-
-    @PostMapping(value = "routing_mode_ors/")
-    public ResponseEntity<JSONArray> calcRouteORS(@RequestBody String request, 
-            @RequestParam(defaultValue = "true") boolean directions,
-            @RequestParam(defaultValue = "true") boolean traveltime) throws Exception {
-        return buildResponseEntity(request, "routing_mode_ors", directions, traveltime);
-    }
-
-    @PostMapping(value = "routing_mode_feedback_ci/")
-    public ResponseEntity<JSONArray> calcRouteFeedbackCi(@RequestBody String request, 
-            @RequestParam(defaultValue = "true") boolean directions,
-            @RequestParam(defaultValue = "true") boolean traveltime) throws Exception {
-        return buildResponseEntity(request, "routing_mode_feedback_ci", directions, traveltime);
-    }
-
-    @PostMapping(value = "routing_mode_feedback_twa/")
-    public ResponseEntity<JSONArray> calcRouteFeedbackTwa(@RequestBody String request, 
-            @RequestParam(defaultValue = "true") boolean directions,
-            @RequestParam(defaultValue = "true") boolean traveltime) throws Exception {
-        return buildResponseEntity(request, "routing_mode_feedback_twa", directions, traveltime);
+        if (!routingModeService.hasMode(routingMode)) {
+            return ResponseEntity.notFound().build();
+        }
+        return buildResponseEntity(request, routingMode, directions, traveltime);
     }
 
     /**
@@ -157,9 +108,15 @@ public class RoutingController {
         int numberOfThreads = 3;
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
         
-        CallableRouting c_walk = new CallableRouting(subgraph, data, endpoints, Routify.sys.getWeightsWalk(), mode, "transport_mode_walk", directions, traveltime);
-        CallableRouting c_cycle = new CallableRouting(subgraph, data, endpoints, Routify.sys.getWeightsBike(), mode, "transport_mode_cycle", directions, traveltime);
-        CallableRouting c_drive = new CallableRouting(subgraph, data, endpoints, Routify.sys.getWeightsDrive(), mode, "transport_mode_drive", directions, traveltime);
+        CallableRouting c_walk = new CallableRouting(subgraph, data, endpoints, Routify.sys.getWeightsWalk(), mode,
+                "transport_mode_walk", directions, traveltime, routingModeService,
+                Routify.sys.getAllowedFeaturesForTransportMode("transport_mode_walk"));
+        CallableRouting c_cycle = new CallableRouting(subgraph, data, endpoints, Routify.sys.getWeightsBike(), mode,
+                "transport_mode_cycle", directions, traveltime, routingModeService,
+                Routify.sys.getAllowedFeaturesForTransportMode("transport_mode_cycle"));
+        CallableRouting c_drive = new CallableRouting(subgraph, data, endpoints, Routify.sys.getWeightsDrive(), mode,
+                "transport_mode_drive", directions, traveltime, routingModeService,
+                Routify.sys.getAllowedFeaturesForTransportMode("transport_mode_drive"));
         
         Future<CustomRoute> f_walk = executorService.submit(c_walk);
         Future<CustomRoute> f_cycle = executorService.submit(c_cycle);

@@ -122,6 +122,73 @@ public static final String url_airquality = "http://airqualityservice:8000/get_p
 public static final String url_api = "http://localhost:8080";
 ```
 
+### Routing Modes and Weight Pipelines
+
+Routing behaviour is now fully configuration-driven. Each routing mode is described in
+`src/main/resources/routing-modes.json` and is exposed automatically through the generic
+endpoint `POST /route/{routing_mode}/`.
+
+```json
+{
+  "routing_mode_green": [
+    { "operation": "base" },
+    { "operation": "filter-disallowed" },
+    { "operation": "green-index", "params": { "impactField": "green_index", "accelerate": 2.0 } }
+  ]
+}
+```
+
+At request time the backend turns the configured list of `operations` into a pipeline of
+weight transformations. Operations ship with sensible defaults but can be parameterised
+through the optional `params` object.
+
+Available operations
+
+| Operation            | Purpose                                                        | Common parameters                              |
+|----------------------|----------------------------------------------------------------|------------------------------------------------|
+| `base`               | Clones the pre-computed weight map for the transport mode      | —                                              |
+| `filter-disallowed`  | Disables edges whose highway tag is not allowed for the mode   | —                                              |
+| `slope`              | Penalises edges exceeding a slope threshold                    | `thresholdField` (default `slope`)             |
+| `green-index`        | Rewards greener edges                                          | `impactField`, `accelerate`                    |
+| `noise`              | Penalises noisy edges                                          | `impactField`, `accelerate`                    |
+| `air`                | Penalises edges with higher PM10 values                        | `impactField`, `alpha`                         |
+
+Adding a new routing mode only requires two steps:
+
+1. Append a new entry to `routing-modes.json` with the desired operations and parameters.
+2. Call the API via `POST /route/<your_mode>/` with the usual request payload. The controller
+   resolves the mode dynamically from the configuration.
+
+If you need a brand-new operation, create a class under
+`ch.routify.routing.operations` that implements `WeightOperation`, register it in
+`WeightOperationFactory`, and reference it by name in the JSON. The runtime will pick it up
+without touching the controllers or the routing core.
+
+### Route Computation Workflow
+
+```mermaid
+flowchart LR
+    A["Client Request\n(/route/{mode}/)"] --> B[RoutingController]
+    B --> C[RoutingModeService]
+    C --> D[[WeightOperation Pipeline]]
+    D --> E[AsWeightedGraph]
+    E --> F[A* Search]
+    F --> G[CustomRoute Builder]
+    G --> H[Response JSON]
+
+    subgraph Pipeline
+        direction LR
+        D1[Base Weights]
+        D2[Filter Disallowed]
+        D3[Mode-Specific Operations]
+    end
+
+    C --> D1
+    D1 --> D2
+    D2 --> D3
+    D3 --> D
+```
+
 ## Documentation
 
 ### Doxygen Documentation

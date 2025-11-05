@@ -1,0 +1,33 @@
+PROJECT_NAME           = "Routify Documentation"
+PROJECT_NUMBER         =
+OUTPUT_DIRECTORY       = output
+GENERATE_LATEX         = NO
+GENERATE_XML           = NO
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+EXTRACT_ALL            = YES
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = NO
+RECURSIVE              = YES
+FULL_PATH_NAMES        = NO
+INPUT                  = README.md \
+                          /src/backend/README.md \
+                          /src/frontend/README.md \
+                          /src/backend/src \
+                          /src/frontend/src
+FILE_PATTERNS          = *.md *.java *.kt *.ts *.tsx *.js *.jsx
+EXCLUDE                =
+EXCLUDE_PATTERNS       = */target/* */dist/* */build/* */node_modules/*
+STRIP_FROM_PATH        = /src
+TAB_SIZE               = 4
+USE_MDFILE_AS_MAINPAGE = README.md
+GENERATE_TREEVIEW      = YES
+HAVE_DOT               = YES
+DOT_IMAGE_FORMAT       = svg
+HTML_EXTRA_STYLESHEET  = doxygen-awesome.css \
+                        doxygen-awesome-sidebar-only.css \
+                        doxygen-awesome-sidebar-only-darkmode-toggle.css
+HTML_COLORSTYLE        = LIGHT
+HTML_COLORSTYLE_HUE    = 208
+MERMAID_OUTPUT_FORMAT  = svg
+MERMAID_OUTPUT_PATH    = mermaid

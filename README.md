@@ -147,6 +147,7 @@ This builds and starts:
 - **nominatim** on port 8081 (Geocoding database with Switzerland data)
 - **photon** on port 2322 (Fast geocoding search API)
 - **airqualityservice** on port 8000 (Air quality data service)
+- **docs** on port 8085 (Generated Doxygen docs with Mermaid diagrams for frontend & backend)
 
 Initial startup times (depending on downlink speed):
 - **Nominatim**: ~10 minutes (600s start_period) for first-time data import
@@ -162,6 +163,7 @@ Initial startup times (depending on downlink speed):
 - **Nominatim API**: http://localhost:8081/search?q=zurich&format=json
 - **Photon API**: http://localhost:2322/api?q=zurich
 - **Air Quality Service**: http://localhost:8000/status
+- **Documentation Portal**: http://localhost:8085/
 
 Example health checks:
 ```bash
@@ -175,6 +177,9 @@ curl "http://localhost:2322/api?q=zurich"  # Photon
 
 # Test air quality service
 curl "http://localhost:8000/status"  # Air Quality Service status
+
+# Regenerate documentation (includes Mermaid/Graphviz rendering)
+docker-compose build docs && docker-compose up -d docs
 ```
 
 ### Common Commands
@@ -423,6 +428,3 @@ If you use this code in your research, please cite our work:
 - **Institution**: ETH Zurich, Professorship for Computational Social Science (COSS)
 - **GitHub**: [ethz-coss/routify](https://github.com/ethz-coss/routify)
 - **Research Paper**: [ACM Digital Library](https://dl.acm.org/doi/10.1145/3640457.3691702)
-
-
-

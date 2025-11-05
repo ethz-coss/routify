@@ -216,6 +216,19 @@ public class RoutifySystem {
     public HashMap<CustomEdge, Double> getWeightsBike() { return weightsBike; }
     public HashMap<CustomEdge, Double> getWeightsDrive() { return weightsDrive; }
 
+    public String[] getAllowedFeaturesForTransportMode(String transportMode) {
+        switch (transportMode) {
+            case "transport_mode_walk":
+                return allowedFeaturesWalk.clone();
+            case "transport_mode_cycle":
+                return allowedFeaturesBike.clone();
+            case "transport_mode_drive":
+                return allowedFeaturesDrive.clone();
+            default:
+                return new String[0];
+        }
+    }
+
     public JSONObject getBoundary() throws FileNotFoundException, ParseException {
         return (JSONObject) new JSONParser(JSONParser.MODE_JSON_SIMPLE).parse(getReader(path_to_boundary));
     }
@@ -285,5 +298,4 @@ public class RoutifySystem {
         }
     }
 }
-
 

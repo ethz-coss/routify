@@ -1,7 +1,5 @@
 package ch.routify.controllers;
 
-import java.util.UUID;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -21,7 +19,7 @@ import net.minidev.json.JSONObject;
  * It provides functionalities for finding nearby entities based on latitude and longitude coordinates.
  * Utilizes {@link Routify} for geographic calculations and data retrieval.
  * 
- * @author aeggerth@ethz.ch
+ * @author Alexander Eggerth
  * @version 1.0
  */
 @RestController
