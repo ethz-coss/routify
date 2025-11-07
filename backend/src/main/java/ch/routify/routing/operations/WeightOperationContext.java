@@ -21,6 +21,7 @@ public class WeightOperationContext {
     private final String transportMode;
     private final String[] allowedFeatures;
     private final HashSet<String> allowedFeatureSet;
+    private double[] cachedNoiseBounds;
 
     public WeightOperationContext(Set<CustomEdge> edges,
                                   HashMap<CustomEdge, Double> baseWeights,
@@ -63,6 +64,14 @@ public class WeightOperationContext {
 
     public HashSet<String> getAllowedFeatureSet() {
         return allowedFeatureSet;
+    }
+
+    public double[] getCachedNoiseBounds() {
+        return cachedNoiseBounds;
+    }
+
+    public void setCachedNoiseBounds(double[] cachedNoiseBounds) {
+        this.cachedNoiseBounds = cachedNoiseBounds;
     }
 
     public double requireDouble(String key) {
