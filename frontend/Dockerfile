@@ -22,6 +22,9 @@ COPY package*.json ./
 COPY angular.json ./
 COPY tsconfig*.json ./
 
+# Install patch-package globally first to satisfy postinstall scripts from dependencies
+RUN npm install -g patch-package
+
 # Install all dependencies (including dev dependencies for build)
 RUN npm install
 
