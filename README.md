@@ -143,23 +143,23 @@ docker-compose up -d --build
 
 This builds and starts:
 - **backend** on port 8080 (Spring Boot API)
-- **frontend** on port 80 (Angular web app)
+- **frontend** on port 3000 (Angular web app; see HTTPS proxy section below)
 - **nominatim** on port 8081 (Geocoding database with Switzerland data)
 - **photon** on port 2322 (Fast geocoding search API)
 - **airqualityservice** on port 8000 (Air quality data service)
 - **docs** on port 8085 (Generated Doxygen docs with Mermaid diagrams for frontend & backend)
 
 Initial startup times (depending on downlink speed):
-- **Nominatim**: ~10 minutes (600s start_period) for first-time data import
-- **Photon**: ~60 seconds (60s start_period) after Nominatim is ready
-- **Air Quality Service**: ~30 seconds (30s start_period)
-- **Backend**: ~2 minutes (120s start_period)
-- **Frontend**: ~60 seconds (60s start_period) 
+- **Nominatim**: ~20 minutes (1200s start_period) for first-time data import
+- **Photon**: ~2 minutes (120s start_period) after Nominatim is ready
+- **Air Quality Service**: ~1 minute (120s start_period)
+- **Backend**: ~4 minutes (240s start_period)
+- **Frontend**: ~2 minutes (120s start_period) 
 
 After the stack is up, wait until `docker ps` shows each service with `STATUS` ending in `healthy`—services still reporting `(health: starting)` are not ready for use yet.
 
 ### Access URLs
-- **Frontend**: http://localhost:80
+- **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8080/
 - **Backend Health**: http://localhost:8080/health
 - **Nominatim API**: http://localhost:8081/search?q=zurich&format=json
@@ -183,6 +183,20 @@ curl "http://localhost:8000/status"  # Air Quality Service status
 # Regenerate documentation (includes Mermaid/Graphviz rendering)
 docker-compose build docs && docker-compose up -d docs
 ```
+
+### Optional: HTTPS proxy (production)
+
+A Caddy reverse proxy is included in the compose file to terminate TLS for `demo.routify.ch` and `routify.ch`. It is disabled by default and only runs when the `prod` profile is enabled. To use it:
+
+1. Point both DNS records to your server.
+2. Start Caddy alongside the core services:
+   ```bash
+   docker-compose --profile prod up -d caddy
+   docker-compose up -d
+   ```
+3. Certificates are requested automatically from Let's Encrypt and stored in the `caddy_data` volume.  
+
+When running locally you can omit the `--profile prod` flag so no HTTPS proxy is started; the frontend remains reachable on http://localhost:3000 without TLS.
 
 ### Common Commands
 
@@ -247,7 +261,7 @@ docker-compose build frontend
 
 **Frontend (Angular)**
 - Web interface for route planning
-- Served by Nginx on port 80
+- Served by Nginx on port 3000 (host) / 80 (container)
 - Depends on backend service (waits for backend to be healthy)
 - Connects to backend API
 
@@ -314,8 +328,9 @@ docker run --rm airqualityservice python OstLuftApi.py --generate-seed
 If ports are already in use:
 ```bash
 # Check what's using the ports
-lsof -i :80      # Frontend
+lsof -i :80      # Caddy HTTP listener (prod profile)
 lsof -i :8080    # Backend
+lsof -i :3000    # Frontend (local profile)
 lsof -i :8081    # Nominatim
 lsof -i :2322    # Photon
 lsof -i :8000    # Air Quality Service
@@ -377,7 +392,7 @@ docker-compose restart [service-name]
    ```
 
 ### Notes
-- Nominatim first-time import takes ~5 minutes (300s start_period)
+- Nominatim first-time import takes ~10 minutes (1200s start_period)
 - Data is persisted in Docker volumes between restarts
 - All services are connected via Docker network
 - Backend uses local resource files (no external database)

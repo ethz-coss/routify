@@ -10,9 +10,10 @@ import { config } from './app/config';
 })
 export class BackendService {
     httpOptions: any;
-    activeBackendUrl: string = config.backendUrl;
+    activeBackendUrl: string;
     
     constructor(private http: HttpClient) {
+        this.activeBackendUrl = this.resolveBackendUrl();
         this.httpOptions = {
             observe: 'body', 
             responseType: 'json',
@@ -22,16 +23,14 @@ export class BackendService {
         };
     }
 
-    // Environment switching removed; always use local backend
-
     async requestRoute(mode: string, data: Object): Promise<CustomRoute[]> {
-        const url: string = `${this.activeBackendUrl}/route/${mode}/`;
+        const url = this.buildUrl(`/route/${mode}/`);
 
         return await firstValueFrom(this.http.post(url, data, this.httpOptions)) as unknown as CustomRoute[];
     }
 
     async requestBoundary() {
-        const url: string = `${this.activeBackendUrl}/status/boundary/`;
+        const url = this.buildUrl('/status/boundary/');
 
         try {
             const response = await firstValueFrom(this.http.get(url));
@@ -44,12 +43,30 @@ export class BackendService {
     // feedback/rating removed
 
     async queryFeatures(latlng: L.LatLng): Promise<CustomEdge[]> {
-        const url: string = `${this.activeBackendUrl}/query/nearby/`;
+        const url = this.buildUrl('/query/nearby/');
 
         let params = new HttpParams()
         .set('lat', latlng.lat.toString())
         .set('lon', latlng.lng.toString());
 
         return (await firstValueFrom(this.http.get(url, { params })) as CustomEdge[]);
+    }
+
+    private resolveBackendUrl(): string {
+        if (typeof window === 'undefined') {
+            return config.backendUrl;
+        }
+
+        const hostname = window.location.hostname;
+        const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+        return isLocalHost ? config.backendUrl : '';
+    }
+
+    private buildUrl(path: string): string {
+        if (!this.activeBackendUrl) {
+            return path.startsWith('/') ? path : `/${path}`;
+        }
+        return `${this.activeBackendUrl}${path}`;
     }
 }

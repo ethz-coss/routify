@@ -1,11 +1,21 @@
 # Multi-stage build for Angular frontend
 FROM node:18-alpine AS build
 
+# Build metadata (overridable via build args)
+ARG FRONTEND_VERSION="dev_local"
+ARG GIT_COMMIT_HASH="unknown"
+ARG BUILD_DATE="unknown"
+
 # Install git for version generation
 RUN apk add --no-cache git
 
 # Set working directory
 WORKDIR /app
+
+# Expose build metadata to the build process
+ENV FRONTEND_VERSION=${FRONTEND_VERSION}
+ENV GIT_COMMIT_HASH=${GIT_COMMIT_HASH}
+ENV BUILD_DATE=${BUILD_DATE}
 
 # Copy package files
 COPY package*.json ./

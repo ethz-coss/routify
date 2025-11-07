@@ -1,0 +1,30 @@
+{
+    admin off
+}
+
+# Redirect HTTP to HTTPS
+http://demo.routify.ch, http://routify.ch {
+    redir https://{host}{uri} permanent
+}
+
+demo.routify.ch, routify.ch {
+    encode gzip
+
+    # Backend API routes
+    @backend path /route/* /status/* /query/* /health* /api/*
+    handle @backend {
+        reverse_proxy backend:8080
+    }
+
+    # Photon geocoding service
+    @photon path /photon /photon/*
+    handle @photon {
+        uri strip_prefix /photon
+        reverse_proxy photon:2322
+    }
+
+    # Frontend (default)
+    handle {
+        reverse_proxy frontend:80
+    }
+}

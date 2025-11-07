@@ -36,9 +36,9 @@ export interface AppConfig {
 
 // Configuration object with all static values
 export const config: AppConfig = {
-  // API Endpoints (local-only)
-  backendUrl: 'http://localhost:8080',
-  photonUrl: 'http://localhost/photon/',
+  // API Endpoints (use relative paths for production, localhost for development)
+  backendUrl: '',
+  photonUrl: '/photon/',
   
   // Map Services
   thunderforestApiKey: '7c80840849bd4b99a9dcd1372204947e',

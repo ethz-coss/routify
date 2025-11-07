@@ -13,14 +13,18 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 120s
+      start_period: 240s
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        FRONTEND_VERSION: ${FRONTEND_VERSION:-dev_local}
+        GIT_COMMIT_HASH: ${GIT_COMMIT_HASH:-unknown}
+        BUILD_DATE: ${BUILD_DATE:-unknown}
     ports:
-      - "80:80"
+      - "3000:80"
     networks:
       - routify-network
     depends_on:
@@ -41,7 +45,7 @@ services:
       interval: 30s
       timeout: 60s
       retries: 30
-      start_period: 60s
+      start_period: 120s
 
   nominatim:
     image: mediagis/nominatim:4.2
@@ -66,7 +70,7 @@ services:
       interval: 60s
       timeout: 10s
       retries: 10
-      start_period: 600s
+      start_period: 1200s
 
   photon:
     build:
@@ -84,7 +88,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 10
-      start_period: 600s
+      start_period: 1200s
 
   airqualityservice:
     build:
@@ -100,7 +104,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 120s
 
   docs:
     build:
@@ -115,6 +119,31 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 20s
+
+  caddy:
+    image: caddy:2.7-alpine
+    profiles: ["prod"]
+    restart: unless-stopped
+    ports:
+      - "80:80"    # HTTP redirect to HTTPS
+      - "443:443"  # HTTPS only
+    volumes:
+      - ./infra/caddy:/etc/caddy:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - routify-network
+    depends_on:
+      backend:
+        condition: service_started
+      frontend:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -k https://localhost:443 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
       start_period: 10s
 
 networks:
@@ -123,3 +152,5 @@ networks:
 
 volumes:
   nominatim_data:
+  caddy_data:
+  caddy_config:

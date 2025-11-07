@@ -1,0 +1,144 @@
+name: Deploy Stack (demo.routify.ch)
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      REMOTE_DIR: /opt/routify-demo/
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Gather deployment metadata
+        id: metadata
+        run: |
+          VERSION=$(jq -r '.version' frontend/package.json)
+          SHORT_SHA=${GITHUB_SHA::7}
+          BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
+          echo "build_date=$BUILD_DATE" >> "$GITHUB_OUTPUT"
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: unnecessary
+
+      - name: Add remote host to known_hosts
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Ensure remote directory exists
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "if [ ! -d \"$REMOTE_DIR\" ]; then mkdir -p $REMOTE_DIR; fi"
+        continue-on-error: true
+
+      - name: Cleanup stale caddy directory
+        run: |
+          SUDO_PASS_B64=$(echo -n "${{ secrets.SSH_SUDO_PASSWORD }}" | base64 | tr -d '\n')
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} bash << EOF
+            SUDO_PASS=\$(echo '$SUDO_PASS_B64' | base64 -d)
+            REMOTE_DIR='$REMOTE_DIR'
+            CADDY_DIR="\$REMOTE_DIR/infra/caddy"
+            if [ -d "\$CADDY_DIR" ]; then
+              echo "Removing stale caddy directory..."
+              if [ -n "\$SUDO_PASS" ] && command -v sudo >/dev/null 2>&1; then
+                printf '%s\n' "\$SUDO_PASS" | sudo -S rm -rf "\$CADDY_DIR"
+              else
+                rm -rf "\$CADDY_DIR"
+              fi
+              echo "✓ Cleaned up stale caddy directory"
+            else
+              echo "ℹ Caddy directory does not exist, skipping cleanup"
+            fi
+          EOF
+        continue-on-error: true
+
+      - name: Ensure repository path ownership
+        run: |
+          SUDO_PASS_B64=$(echo -n "${{ secrets.SSH_SUDO_PASSWORD }}" | base64 | tr -d '\n')
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} bash << EOF
+            SUDO_PASS=\$(echo '$SUDO_PASS_B64' | base64 -d)
+            REMOTE_DIR='$REMOTE_DIR'
+            SSH_USER='${{ secrets.SSH_USER }}'
+            if [ -n "\$SUDO_PASS" ] && command -v sudo >/dev/null 2>&1; then
+              printf '%s\n' "\$SUDO_PASS" | sudo -S chown -R "\$SSH_USER:\$SSH_USER" "\$REMOTE_DIR" || true
+            fi
+          EOF
+
+      - name: Sync repository to remote host
+        run: |
+          rsync -avz --delete \
+            --exclude='.git/' \
+            --exclude='.venv/' \
+            --exclude='node_modules/' \
+            --exclude='backend/target/' \
+            --exclude='frontend/node_modules/' \
+            --exclude='.idea/' \
+            --exclude='.DS_Store' \
+            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$REMOTE_DIR/
+
+      - name: Fix permissions after sync
+        run: |
+          SUDO_PASS_B64=$(echo -n "${{ secrets.SSH_SUDO_PASSWORD }}" | base64 | tr -d '\n')
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} bash << EOF
+            SUDO_PASS=\$(echo '$SUDO_PASS_B64' | base64 -d)
+            REMOTE_DIR='$REMOTE_DIR'
+            SSH_USER='${{ secrets.SSH_USER }}'
+            REMOTE_DIR_NORM=\${REMOTE_DIR%/}
+            if [ -n "\$SUDO_PASS" ] && command -v sudo >/dev/null 2>&1; then
+              printf '%s\n' "\$SUDO_PASS" | sudo -S chown -R "\$SSH_USER:\$SSH_USER" "\$REMOTE_DIR_NORM" || true
+              printf '%s\n' "\$SUDO_PASS" | sudo -S chmod -R u+rwX "\$REMOTE_DIR_NORM" || true
+            else
+              chown -R "\$SSH_USER:\$SSH_USER" "\$REMOTE_DIR_NORM" || true
+              chmod -R u+rwX "\$REMOTE_DIR_NORM" || true
+            fi
+            echo "✓ Fixed permissions after sync"
+          EOF
+        continue-on-error: true
+
+      - name: Verify Caddyfile deployed
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "test -f ${REMOTE_DIR%/}/infra/caddy/Caddyfile && echo '✓ Caddyfile verified' || (echo '✗ Caddyfile not found' && exit 1)"
+
+      - name: Update version metadata file
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cat > $REMOTE_DIR/version.env <<EOF
+          FRONTEND_VERSION=${{ steps.metadata.outputs.version }}
+          GIT_COMMIT_HASH=${{ steps.metadata.outputs.short_sha }}
+          BUILD_DATE=${{ steps.metadata.outputs.build_date }}
+          EOF"
+
+      - name: Ensure nominatim and photon are running
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd $REMOTE_DIR && \
+            ensure_running() { \
+              local svc=\$1; \
+              local id=\$(docker compose ps -q \$svc); \
+              if [ -z \"\$id\" ]; then \
+                echo \"Starting \$svc...\"; \
+                docker compose up -d \$svc; \
+              else \
+                echo \"\$svc already running (container \$id), leaving untouched.\"; \
+              fi; \
+            }; \
+            ensure_running nominatim; \
+            ensure_running photon"
+
+      - name: Ensure HTTPS proxy is running (prod profile)
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd $REMOTE_DIR && docker compose --profile prod up -d caddy"
+
+      - name: Rebuild backend, frontend, and docs
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd $REMOTE_DIR && \
+            set -a && source version.env && set +a && \
+            docker compose up -d --build --force-recreate backend frontend docs"

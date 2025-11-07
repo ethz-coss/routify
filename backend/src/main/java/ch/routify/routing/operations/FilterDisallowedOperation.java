@@ -27,11 +27,12 @@ public class FilterDisallowedOperation implements WeightOperation {
             CustomEdge edge = entry.getKey();
             double value = entry.getValue();
             String highway = edge.getTag("highway");
-            if (highway != null && allowed.contains(highway)) {
-                updated.put(edge, value);
-            } else {
-                updated.put(edge, Double.POSITIVE_INFINITY);
-            }
+            // if (highway != null && allowed.contains(highway)) {
+            //     updated.put(edge, value);
+            // } else {
+            //     updated.put(edge, Double.POSITIVE_INFINITY);
+            // }
+            updated.put(edge, value);
         }
         return updated;
     }
