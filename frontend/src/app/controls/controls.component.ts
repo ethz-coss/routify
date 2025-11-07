@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
 // import custom components
@@ -33,6 +34,7 @@ import { config } from '../config';
     FormsModule,
     MatButtonModule,
     MatExpansionModule,
+    MatCheckboxModule,
     // import custom components
     SelectAutocompleteComponent,
     CustomChartComponent,
@@ -105,6 +107,7 @@ export class ControlsComponent {
   public directionsModes: Array<string> = [];
   public selectedChart: 'altitude' | 'green' | 'noise' | 'air' = 'altitude';
   public overlayEnabled: boolean = false;
+  public seedOverlayEnabled: boolean = false;
   public activeSliderMode: 'routing_mode_green' | 'routing_mode_slope' | 'routing_mode_noise' | 'routing_mode_air' | 'routing_mode_distance' | undefined;
   public paramValues = {
     slope: 10,
@@ -186,6 +189,11 @@ export class ControlsComponent {
 
   public closeSidebar(): void {
     this.requestCloseSidebar.emit();
+  }
+
+  public onToggleSeedOverlay(event: MatCheckboxChange): void {
+    this.seedOverlayEnabled = event.checked;
+    this.map?.setSeedOverlayVisible(event.checked);
   }
 
   private showErrorNotification(error: string) {

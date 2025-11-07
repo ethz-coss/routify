@@ -12,6 +12,7 @@ public class AirOperation implements WeightOperation {
 
     private final String impactField;
     private final double alpha;
+    private static final double EPSILON = 1e-6;
 
     public AirOperation(Map<String, Object> params) {
         this.impactField = params != null && params.containsKey("impactField")
@@ -28,23 +29,36 @@ public class AirOperation implements WeightOperation {
             throw new IllegalStateException("AirOperation requires base weights to run first");
         }
 
-        // Preserve parameter usage semantics from previous implementation.
-        context.requireDouble(impactField);
+        double impact = context.requireDouble(impactField);
 
         HashMap<CustomEdge, Double> updated = new HashMap<>(current.size());
         for (Map.Entry<CustomEdge, Double> entry : current.entrySet()) {
             CustomEdge edge = entry.getKey();
-            double distance = edge.getDistance();
             double weight = entry.getValue();
 
             if (edge.getPm_10() >= 0) {
-                double exponent = Math.exp(edge.getPm_10() - CustomEdge.minPm10);
-                weight = weight + alpha * exponent;
+                double normalized = normalizePm10(edge.getPm_10());
+                double factor = 1.0 + normalized * impact * alpha;
+                weight = weight * factor;
             } else {
                 weight = Double.POSITIVE_INFINITY;
             }
             updated.put(edge, weight);
         }
         return updated;
+    }
+
+    private double normalizePm10(double value) {
+        double min = CustomEdge.minPm10;
+        double max = CustomEdge.maxPm10;
+        if (value < min) {
+            return 0.0;
+        }
+        if (value > max) {
+            return 1.0;
+        }
+
+        double range = Math.max(EPSILON, max - min);
+        return (value - min) / range;
     }
 }

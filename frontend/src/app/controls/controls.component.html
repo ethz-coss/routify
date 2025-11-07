@@ -42,6 +42,7 @@
                     <mat-icon fontIcon="directions_car"></mat-icon>
                 </button>
             </div>
+
         </div>
     </div>
 
@@ -117,6 +118,12 @@
                     <button *ngIf="this.prevRoutingModes.includes('routing_mode_air')" class="custom-mode-btn" [class.active]="routingModeChart==='routing_mode_air'" (click)="setRoutingModeChart('routing_mode_air', $event)" title="air quality"><mat-icon aria-hidden="false" aria-label="air_quality" fontIcon="air"></mat-icon></button>
                     
                 </div>
+            </div>
+
+            <div class="map-overlay-toggle">
+                <mat-checkbox color="primary" [checked]="seedOverlayEnabled" (change)="onToggleSeedOverlay($event)">
+                    Apply OstLuft seed overlay
+                </mat-checkbox>
             </div>
 
             <div class="stats-chart">

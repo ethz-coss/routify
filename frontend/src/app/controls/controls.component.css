@@ -285,6 +285,16 @@ a::after {
     box-shadow: none !important;
 }
 
+.map-overlay-toggle {
+    margin: 0 0 12px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.map-overlay-toggle mat-checkbox {
+    font-size: 0.85rem;
+}
+
 
 .close_sidebar_invisible{
     justify-self: right;

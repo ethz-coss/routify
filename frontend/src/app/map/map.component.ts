@@ -78,6 +78,12 @@ export class MapComponent implements AfterViewInit {
 
   private legendControl: L.Control | null = null;
   public maskLayer: L.TileLayer | null = null;
+  private seedOverlay?: L.ImageOverlay;
+  private seedOverlayVisible: boolean = false;
+  private readonly seedOverlayBounds = L.latLngBounds([
+    [47.3202187, 8.4480061],
+    [47.4346662, 8.6254413]
+  ]);
   private queryModeButton: QueryModeButton | null = null;
   private infoButton: InfoButton | null = null;
   private sidebarButton: SidebarButton | null = null;
@@ -627,6 +633,9 @@ export class MapComponent implements AfterViewInit {
         layer.redraw();
       }
     });
+
+    // Apply pending seed overlay preference once the map is ready.
+    this.setSeedOverlayVisible(this.seedOverlayVisible);
   }
 
   private applyClipPath() {
@@ -642,6 +651,33 @@ export class MapComponent implements AfterViewInit {
     const clipPathValue = `polygon(${points.join(',')})`;
     pane.style.clipPath = clipPathValue;
     (pane.style as any).webkitClipPath = clipPathValue; // for Safari compatibility
+  }
+
+  public setSeedOverlayVisible(enabled: boolean): void {
+    this.seedOverlayVisible = enabled;
+    if (!this.map) {
+      return;
+    }
+
+    const overlay = this.ensureSeedOverlay();
+    if (enabled) {
+      if (!this.map.hasLayer(overlay)) {
+        overlay.addTo(this.map);
+      }
+    } else if (this.map.hasLayer(overlay)) {
+      this.map.removeLayer(overlay);
+    }
+  }
+
+  private ensureSeedOverlay(): L.ImageOverlay {
+    if (!this.seedOverlay) {
+      this.seedOverlay = L.imageOverlay('assets/images/airquality-seed.png', this.seedOverlayBounds, {
+        opacity: 0.8,
+        pane: 'clippedOverlayPane',
+        interactive: false
+      });
+    }
+    return this.seedOverlay;
   }
 
   async loadBoundary() {
