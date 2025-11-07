@@ -75,15 +75,22 @@ curl "http://localhost:2322/api?q=zurich"  # Photon
 
 ## API Usage
 
-**Nominatim API:**
+**Nominatim API (Direct Access):**
 ```
-GET /search?q=search_term&format=json&limit=5
+GET http://localhost:8081/search?q=search_term&format=json&limit=5
 ```
 
-**Photon API:**
+**Photon API (Direct Access - Local Development):**
 ```
-GET /api?q=search_term
+GET http://localhost:2322/api?q=search_term
 ```
+
+**Photon API (Production - via Caddy):**
+```
+GET https://demo.routify.ch/photon/api?q=search_term
+```
+
+**Note:** In production, Photon is accessed through Caddy at `/photon/*` which strips the `/photon` prefix and forwards to the Photon service.
 
 ## Configuration
 

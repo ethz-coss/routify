@@ -101,13 +101,22 @@ frontend:
 ```
 
 #### 2. Application Configuration
-Application settings live in `src/app/config.ts`. Key fields include:
+Application settings live in `src/app/config.ts`. The frontend automatically detects the environment:
+
+**Local Development (localhost):**
+- Uses direct URLs: `http://localhost:8080` for backend, `http://localhost:2322/` for Photon
+- Automatically detected when running on `localhost` or `127.0.0.1`
+
+**Production:**
+- Uses relative paths: `/api/*` for backend, `/photon/` for Photon
+- Routes through Caddy reverse proxy on port 443 (HTTPS)
+- Automatically detected when running on production domain
 
 ```typescript
 export const config: AppConfig = {
-  // API Endpoints
-  backendUrl: 'http://localhost:8080',
-  photonUrl: 'http://localhost/photon/',
+  // API Endpoints (used for localhost detection fallback)
+  backendUrl: 'http://localhost:8080',  // Used only in local development
+  photonUrl: 'http://localhost:2322/',  // Used only in local development
   
   // Map Services
   thunderforestApiKey: '7c80840849bd4b99a9dcd1372204947e',
@@ -127,8 +136,13 @@ export const config: AppConfig = {
 };
 ```
 
+**Environment Detection:**
+The frontend automatically detects the environment by checking `window.location.hostname`:
+- **Localhost**: Uses `config.backendUrl` and `config.photonUrl` (direct access)
+- **Production**: Uses relative paths (routes through Caddy)
+
 #### 3. Nginx Configuration
-The frontend uses Nginx for serving static files and proxying requests:
+The frontend uses Nginx for serving static files. In production, routing is handled by Caddy:
 
 ```nginx
 server {
@@ -141,22 +155,20 @@ server {
     location / {
         try_files $uri $uri/ /index.html;
     }
-
-    # Proxy Photon requests to the Photon service
-    location /photon/ {
-        proxy_pass http://photon:2322/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
 }
 ```
 
+**Note:** In production, Caddy handles all routing (including `/photon/*` and `/api/*`). Nginx only serves the static Angular application.
+
 #### 4. Environment Variables
-- `BACKEND_URL`: Backend API URL (default: http://localhost:8080)
-- `PHOTON_URL`: Photon geocoding URL (default: http://localhost/photon/)
-- `THUNDERFOREST_API_KEY`: Thunderforest API key for map tiles
+**Note:** The frontend uses automatic environment detection based on `window.location.hostname`. Environment variables are not currently used for URL configuration. The application automatically:
+- Uses direct URLs (`http://localhost:8080`, `http://localhost:2322/`) when running on localhost
+- Uses relative paths (`/api/*`, `/photon/`) when running on production domains
+
+Build-time environment variables (set during Docker build):
+- `FRONTEND_VERSION`: Version from package.json
+- `GIT_COMMIT_HASH`: Git commit hash
+- `BUILD_DATE`: Build timestamp
 
 ## Running locally (development)
 

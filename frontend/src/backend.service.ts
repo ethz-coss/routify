@@ -60,6 +60,7 @@ export class BackendService {
         const hostname = window.location.hostname;
         const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
 
+        // For localhost, use direct backend URL; for production, use relative paths (empty string)
         return isLocalHost ? config.backendUrl : '';
     }
 

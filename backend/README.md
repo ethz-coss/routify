@@ -114,13 +114,15 @@ Development mode is primarily used for debugging and analysis of the routing gra
 - `SERVER_PORT`: Server port (default: 8080)
 
 #### 4. Service URLs Configuration
-The backend connects to external services via configured URLs:
+The backend connects to external services via Docker service names (internal network):
 ```java
 // In Routify.java
-public static final String url_geocoder = "photon:2322";
-public static final String url_airquality = "http://airqualityservice:8000/get_pm10";
-public static final String url_api = "http://localhost:8080";
+public static final String url_geocoder = "photon:2322";  // Docker service name
+public static final String url_airquality = "http://airqualityservice:8000/get_pm10";  // Docker service name
+public static final String url_api = "http://localhost:8080";  // Internal reference
 ```
+
+**Note:** These URLs use Docker service names for internal communication. In production, external access is handled by Caddy reverse proxy which routes requests to these services.
 
 ### Routing Modes and Weight Pipelines
 
@@ -236,7 +238,121 @@ The application should now be running on `localhost:8080`.
 
 ## Deployment
 
-TODO: Add additional notes about how to deploy this on a live system.
+The Routify backend is designed to be deployed as part of the full Routify stack using Docker Compose. It integrates seamlessly with other services (frontend, Nominatim, Photon, Air Quality Service) and can be deployed either locally or in production.
+
+### Docker-Based Deployment
+
+The backend is containerized and runs as part of the Docker Compose stack. It does not require a separate database (uses static JSON files) and connects to other services via Docker service names.
+
+**Prerequisites:**
+- Docker and Docker Compose installed
+- Sufficient memory (recommended: 4GB+ for large datasets)
+- Java 17 runtime (handled by Docker image)
+
+**Deployment Steps:**
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/ethz-coss/routify.git
+   cd routify
+   ```
+
+2. **Start the backend with all services:**
+   ```bash
+   docker-compose up -d --build backend
+   ```
+
+3. **Verify deployment:**
+   ```bash
+   # Check service status
+   docker-compose ps backend
+   
+   # Check health endpoint
+   curl http://localhost:8080/health
+   # Expected: {"status":"UP"}
+   ```
+
+### Production Deployment
+
+For production deployment, the backend is typically deployed as part of the full stack with HTTPS via Caddy:
+
+1. **Full stack deployment:**
+   ```bash
+   # Start all core services
+   docker-compose up -d --build
+   
+   # Start Caddy reverse proxy (HTTPS)
+   docker-compose --profile prod up -d caddy
+   ```
+
+2. **Backend API endpoints in production:**
+   - `https://demo.routify.ch/api/*` - General API endpoints
+   - `https://demo.routify.ch/route/*` - Routing endpoints
+   - `https://demo.routify.ch/status/*` - Status endpoints
+   - `https://demo.routify.ch/query/*` - Query endpoints
+   - `https://demo.routify.ch/health` - Health check
+
+3. **Service dependencies:**
+   - **Photon** (port 2322): Required for geocoding
+   - **Air Quality Service** (port 8000): Required for PM10 data
+   - **Nominatim** (port 8081): Optional, used by Photon
+
+### Automated Deployment
+
+The project includes a GitHub Actions workflow (`.github/workflows/deploy-demo.yml`) that automates deployment to a production server:
+
+- **Triggers:** Push to `main` branch or manual workflow dispatch
+- **Process:**
+  1. Checks out code
+  2. Gathers build metadata (version, git hash, build date)
+  3. Syncs code to remote server via rsync
+  4. Sets environment variables from `version.env`
+  5. Rebuilds and restarts services via Docker Compose
+
+**Deployment Configuration:**
+- Remote directory: `/opt/routify-demo/`
+- Services rebuilt: `backend`, `frontend`, `docs`
+- Services kept running: `nominatim`, `photon` (if already running)
+
+### Environment Configuration
+
+The backend uses Docker service names for internal communication:
+- `photon:2322` - Photon geocoding service
+- `airqualityservice:8000` - Air quality service
+- `http://localhost:8080` - Self-reference
+
+No external configuration files or environment variables are required for basic operation.
+
+### Health Checks
+
+The backend includes a health check endpoint for monitoring:
+
+```bash
+# Health check
+curl http://localhost:8080/health
+# Response: {"status":"UP"}
+
+# Boundary data check
+curl http://localhost:8080/status/boundary/
+```
+
+Docker Compose health check configuration:
+```yaml
+healthcheck:
+  test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+  interval: 30s
+  timeout: 10s
+  retries: 5
+  start_period: 240s
+```
+
+### Production Considerations
+
+- **Memory:** Allocate sufficient heap space via `JAVA_OPTS` if needed (default should work for most cases)
+- **Development Mode:** Do NOT use `--devmode` in production (adds unnecessary file I/O)
+- **Logging:** Uses SLF4J logger (`Routify.logger`) for consistent logging
+- **Data Files:** Static JSON files are included in the JAR, no external data source required
+- **Service Dependencies:** Ensure Photon and Air Quality Service are running before backend starts
 
 ## Built With
 

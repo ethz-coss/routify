@@ -7,6 +7,7 @@ http://demo.routify.ch, http://routify.ch {
     redir https://{host}{uri} permanent
 }
 
+# Production (automatic Let's Encrypt certificates)
 demo.routify.ch, routify.ch {
     encode gzip
 
@@ -21,6 +22,13 @@ demo.routify.ch, routify.ch {
     handle @photon {
         uri strip_prefix /photon
         reverse_proxy photon:2322
+    }
+
+    # Documentation portal
+    @docs path /docs /docs/*
+    handle @docs {
+        uri strip_prefix /docs
+        reverse_proxy docs:80
     }
 
     # Frontend (default)

@@ -235,4 +235,8 @@ docker run -p 8000:8000 airqualityservice python OstLuftApi.py --use-seed seed_1
 
 This service is used by the Routify backend to provide air quality data for routing calculations. The backend queries this service via HTTP POST requests to `/get_pm10` with vertex coordinates and receives PM10 values for each coordinate.
 
-The service is configured in the Routify backend via the `url_airquality` setting, which points to this service's `/get_pm10` endpoint.
+The service is configured in the Routify backend via the `url_airquality` setting, which points to this service's `/get_pm10` endpoint using Docker service names for internal communication.
+
+**Access:**
+- **Local Development**: `http://localhost:8000/status` (direct access)
+- **Production**: Internal only (accessed by backend via Docker network, not exposed externally)

@@ -36,8 +36,9 @@ export interface AppConfig {
 
 // Configuration object with all static values
 export const config: AppConfig = {
-  // API Endpoints (use relative paths for production, localhost for development)
-  backendUrl: '',
+  // API Endpoints (used for localhost detection fallback)
+  backendUrl: 'http://localhost:8080',
+  // Note: photonUrl is not used anymore - always uses /photon/ which is proxied by nginx/Caddy
   photonUrl: '/photon/',
   
   // Map Services

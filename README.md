@@ -34,8 +34,12 @@ The system uses environmental data and advanced routing algorithms to provide pe
 
 ```mermaid
 graph TB
+    subgraph "Production (HTTPS)"
+        CADDY[Caddy Reverse Proxy<br/>Port 443 HTTPS<br/>Port 80 HTTP Redirect]
+    end
+    
     subgraph "User Interface"
-        UI[Frontend<br/>Angular + Nginx<br/>Port 80]
+        UI[Frontend<br/>Angular + Nginx<br/>Port 80/3000]
     end
     
     subgraph "Core Services"
@@ -55,6 +59,7 @@ graph TB
         WMS[OstLuft WMS<br/>Live Air Quality]
     end
     
+    CADDY -.->|Production Only| UI
     UI --> API
     API --> GEO
     API --> PHOTON
@@ -71,11 +76,13 @@ graph TB
     classDef backend fill:#f3e5f5
     classDef data fill:#e8f5e8
     classDef external fill:#fff3e0
+    classDef proxy fill:#fce4ec
     
     class UI frontend
     class API,PHOTON,AQ backend
     class GEO,OSM,SEED data
     class WMS,OSTLUFT external
+    class CADDY proxy
 ```
 
 ## Technology Stack
@@ -158,7 +165,7 @@ Initial startup times (depending on downlink speed):
 
 After the stack is up, wait until `docker ps` shows each service with `STATUS` ending in `healthy`—services still reporting `(health: starting)` are not ready for use yet.
 
-### Access URLs
+### Access URLs (Local Development)
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8080/
 - **Backend Health**: http://localhost:8080/health
@@ -166,6 +173,14 @@ After the stack is up, wait until `docker ps` shows each service with `STATUS` e
 - **Photon API**: http://localhost:2322/api?q=zurich
 - **Air Quality Service**: http://localhost:8000/status
 - **Documentation Portal**: http://localhost:8085/
+
+### Access URLs (Production with Caddy)
+When running with `--profile prod`, Caddy provides HTTPS access:
+- **Frontend**: https://demo.routify.ch (or https://routify.ch)
+- **Backend API**: https://demo.routify.ch/api/*, /route/*, /status/*, /query/*
+- **Photon API**: https://demo.routify.ch/photon/*
+- **Documentation**: https://demo.routify.ch/docs/
+- **Backend Health**: https://demo.routify.ch/health
 
 Example health checks:
 ```bash
@@ -186,17 +201,30 @@ docker-compose build docs && docker-compose up -d docs
 
 ### Optional: HTTPS proxy (production)
 
-A Caddy reverse proxy is included in the compose file to terminate TLS for `demo.routify.ch` and `routify.ch`. It is disabled by default and only runs when the `prod` profile is enabled. To use it:
+A Caddy reverse proxy is included in the compose file to terminate TLS for `demo.routify.ch` and `routify.ch`. It is disabled by default and only runs when the `prod` profile is enabled. 
 
-1. Point both DNS records to your server.
+**Production Setup:**
+1. Point DNS records (`demo.routify.ch` and `routify.ch`) to your server.
 2. Start Caddy alongside the core services:
    ```bash
    docker-compose --profile prod up -d caddy
    docker-compose up -d
    ```
-3. Certificates are requested automatically from Let's Encrypt and stored in the `caddy_data` volume.  
+3. Certificates are requested automatically from Let's Encrypt and stored in the `caddy_data` volume.
+4. All traffic is routed through Caddy:
+   - Frontend: `https://demo.routify.ch`
+   - Backend API: `https://demo.routify.ch/api/*`, `/route/*`, `/status/*`, `/query/*`
+   - Photon: `https://demo.routify.ch/photon/*`
+   - Documentation: `https://demo.routify.ch/docs/`
 
-When running locally you can omit the `--profile prod` flag so no HTTPS proxy is started; the frontend remains reachable on http://localhost:3000 without TLS.
+**Local Development:**
+When running locally (without `--profile prod`), Caddy is not started. Services are accessible directly:
+- Frontend: `http://localhost:3000` (direct access, no HTTPS)
+- Backend: `http://localhost:8080` (direct access)
+- Photon: `http://localhost:2322` (direct access)
+- Documentation: `http://localhost:8085` (direct access)
+
+The frontend automatically detects the environment and uses appropriate URLs (direct localhost URLs for local development, relative paths for production).
 
 ### Common Commands
 
@@ -328,12 +356,14 @@ docker run --rm airqualityservice python OstLuftApi.py --generate-seed
 If ports are already in use:
 ```bash
 # Check what's using the ports
-lsof -i :80      # Caddy HTTP listener (prod profile)
+lsof -i :80      # Caddy HTTP redirect (prod profile only)
+lsof -i :443     # Caddy HTTPS (prod profile only)
 lsof -i :8080    # Backend
-lsof -i :3000    # Frontend (local profile)
+lsof -i :3000    # Frontend (local development)
 lsof -i :8081    # Nominatim
 lsof -i :2322    # Photon
 lsof -i :8000    # Air Quality Service
+lsof -i :8085    # Documentation portal
 ```
 
 **Memory Issues:**
