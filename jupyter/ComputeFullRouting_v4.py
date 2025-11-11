@@ -42,7 +42,7 @@ def make_payload(item: dict) -> dict:
         "toLat": d_lat,
         "toLon": d_lon,
         "green_index": 50,
-        "slope": 50,
+        "slope": 10,
         "noise": 50,
         "air": 50,
     }
