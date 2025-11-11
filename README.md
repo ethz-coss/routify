@@ -123,7 +123,7 @@ This project is developed as part of research at **ETH Zurich** and is associate
 ### Key Contributors
 - **Sachit Mahajan** (sachit.mahajan@gess.ethz.ch) - Research Supervisor
 - **Alexander Eggerth** (aeggerth@ethz.ch) - Lead Developer
-- **Javier Argota Sanchez** (javier.argota@gess.ethz.ch) - Research Collaborator
+- **Javier Argota Sánchez-Vaquerizo** (javier.argota@gess.ethz.ch) - Research Collaborator
 - **Christoph Schweighofer** (christoph.schweighofer@inf.ethz.ch) - Developer
 - **COSS Team** - Research Support and Guidance
 
