@@ -6,7 +6,7 @@
   "routing_mode_green": [
     { "operation": "base" },
     { "operation": "filter-disallowed" },
-    { "operation": "green-index", "params": { "impactField": "green_index", "accelerate": 2.0 } }
+    { "operation": "green-index", "params": { "impactField": "green_index", "accelerate": 20.0 } }
   ],
   "routing_mode_slope": [
     { "operation": "base" },
