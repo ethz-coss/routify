@@ -116,7 +116,7 @@ This project is developed as part of research at **ETH Zurich** and is associate
 
 ### Research Paper
 - **Title**: "Democratizing Urban Mobility Through an Open-Source, Multi-Criteria Route Recommendation System"
-- **Authors**: Alexander Eggerth, Sachit Mahajan, Javier Argota Sánchez-Vaquerizo and Dirk Helbing
+- **Authors**: Alexander Eggerth, Javier Argota Sánchez-Vaquerizo, Dirk Helbing and Sachit Mahajan
 - **Institution**: ETH Zurich, COSS
 - **Publication**: [ACM Digital Library](https://dl.acm.org/doi/10.1145/3640457.3691702)
 
@@ -125,6 +125,7 @@ This project is developed as part of research at **ETH Zurich** and is associate
 - **Alexander Eggerth** (aeggerth@ethz.ch) - Lead Developer
 - **Javier Argota Sánchez-Vaquerizo** (javier.argota@gess.ethz.ch) - Research Collaborator
 - **Christoph Schweighofer** (christoph.schweighofer@inf.ethz.ch) - Developer
+- **Dirk Helbing** (dhelbing@ethz.ch) - CoCi PI, Mentor
 - **COSS Team** - Research Support and Guidance
 
 ### Research Context
