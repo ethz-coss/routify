@@ -123,10 +123,6 @@ on OSF (Open Science Framework):
 > 📦 **[OSF project — `https://osf.io/XXXXXXX`]**
 > *(replace with actual OSF URL after upload)*
 
-OSF is preferred here over Zenodo or Git LFS because it supports private storage
-during peer review (switchable to public on acceptance), has direct GitHub repo
-integration, and organises code + data + paper under one project page.
-
 ### Downloading the data
 
 ```bash
