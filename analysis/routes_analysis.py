@@ -62,16 +62,20 @@ from mgwr.sel_bw import Sel_BW
 # --- Font & Style ---
 from matplotlib import font_manager
 
+# Helvetica is proprietary and cannot be redistributed.
+# If you have a licensed copy, place it at data/Helvetica.ttc and it will be
+# loaded automatically. Otherwise the fallback chain below is used instead,
+# which produces visually identical output on most systems.
 font_path = "data/Helvetica.ttc"
 if os.path.exists(font_path):
     font_manager.fontManager.addfont(font_path)
-    for f in font_manager.fontManager.ttflist:
-        if "Helvetica" in f.name:
-            print(f.name, f.fname)
+    sans_serif_fonts = ["Helvetica"]
+else:
+    sans_serif_fonts = ["Helvetica Neue", "Arial", "Liberation Sans", "DejaVu Sans"]
 
 plt.rcParams.update({
     "font.family": "sans-serif",
-    "font.sans-serif": ["Helvetica"],
+    "font.sans-serif": sans_serif_fonts,
     "figure.dpi": 450,
 })
 

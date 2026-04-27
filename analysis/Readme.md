@@ -89,7 +89,6 @@ Place these inside a `data/` subfolder next to the script:
 | `result_matrices_dfd.pkl` | Pairwise Discrete Fréchet Distance matrices | Step 6 cache |
 | `water_ZH.pkl` | Water body geometries for Zurich | Step 5 |
 | `zurich_network.graphml` | OSM road network for Zurich (used only if hex grids are missing) | Step 2 fallback |
-| `Helvetica.ttc` | Font file for publication-quality figures | Styling |
 
 > **On first run** (no cache files present), the script recomputes everything from
 > `gdf_routes_v4_merged.pkl` and saves all cache files. Subsequent runs load from
@@ -122,6 +121,10 @@ on OSF (Open Science Framework):
 
 > 📦 **[OSF project — `https://osf.io/XXXXXXX`]**
 > *(replace with actual OSF URL after upload)*
+
+OSF is preferred here over Zenodo or Git LFS because it supports private storage
+during peer review (switchable to public on acceptance), has direct GitHub repo
+integration, and organises code + data + paper under one project page.
 
 ### Downloading the data
 
@@ -160,6 +163,12 @@ pip install -r requirements.txt
 > conda install -c conda-forge pyproj gdal
 > ```
 
+> **Font note:** The script uses Helvetica if a licensed copy is placed at
+> `data/Helvetica.ttc`. This file is **not included** in the OSF data package
+> (Helvetica is proprietary — Linotype/Monotype). Without it the script
+> automatically falls back to Helvetica Neue → Arial → DejaVu Sans, producing
+> visually equivalent output.
+
 > **Numba JIT note:** the first run of `routes_analysis.py` will be slower while
 > Numba compiles the DFD/DTW functions. Compiled artifacts are cached automatically.
 
@@ -183,6 +192,5 @@ analysis/
 │   ├── result_matrices_dfd.pkl
 │   ├── water_ZH.pkl
 │   ├── zurich_network.graphml
-│   └── Helvetica.ttc
 └── figs/                    # ← created automatically by routes_analysis.py
 ```
