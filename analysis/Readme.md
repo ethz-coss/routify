@@ -119,7 +119,7 @@ Saved to `figs/` subfolder (created automatically):
 The `data/` folder (~200 MB) is **not stored in this repository**. It is hosted
 on OSF (Open Science Framework):
 
-> 📦 **OSF project: `https://osf.io/XXXXXXX`**
+> 📦 **OSF project: `https://osf.io/nhpse/overview?view_only=74a92fb2e6d84f12af72d7da74b79bf3`**
 
 ### Downloading the data
 
