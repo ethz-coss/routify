@@ -120,11 +120,6 @@ The `data/` folder (~200 MB) is **not stored in this repository**. It is hosted
 on OSF (Open Science Framework):
 
 > 📦 **OSF project: `https://osf.io/XXXXXXX`**
-> *(replace with actual URL once uploaded)*
-
-OSF is preferred here over Zenodo or Git LFS because it supports private storage
-during peer review (switchable to public on acceptance), has direct GitHub repo
-integration, and organises code + data + paper under one project page.
 
 ### Downloading the data
 
