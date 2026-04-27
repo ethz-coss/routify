@@ -119,8 +119,8 @@ Saved to `figs/` subfolder (created automatically):
 The `data/` folder (~200 MB) is **not stored in this repository**. It is hosted
 on OSF (Open Science Framework):
 
-> 📦 **[OSF project — `https://osf.io/XXXXXXX`]**
-> *(replace with actual OSF URL after upload)*
+> 📦 **OSF project: `https://osf.io/XXXXXXX`**
+> *(replace with actual URL once uploaded)*
 
 OSF is preferred here over Zenodo or Git LFS because it supports private storage
 during peer review (switchable to public on acceptance), has direct GitHub repo
@@ -163,11 +163,10 @@ pip install -r requirements.txt
 > conda install -c conda-forge pyproj gdal
 > ```
 
-> **Font note:** The script uses Helvetica if a licensed copy is placed at
-> `data/Helvetica.ttc`. This file is **not included** in the OSF data package
-> (Helvetica is proprietary — Linotype/Monotype). Without it the script
-> automatically falls back to Helvetica Neue → Arial → DejaVu Sans, producing
-> visually equivalent output.
+> **OSM data attribution:** `zurich_network.graphml` is derived from
+> [OpenStreetMap](https://www.openstreetmap.org) data, © OpenStreetMap contributors,
+> licensed under the [Open Database License (ODbL) 1.0](https://opendatacommons.org/licenses/odbl/).
+> If you use this file, you must credit OpenStreetMap and distribute it under the same license.
 
 > **Numba JIT note:** the first run of `routes_analysis.py` will be slower while
 > Numba compiles the DFD/DTW functions. Compiled artifacts are cached automatically.
