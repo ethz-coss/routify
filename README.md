@@ -1,6 +1,6 @@
 # Routify
 
-[![Research Paper](https://img.shields.io/badge/Research-ACM%20Digital%20Library-blue)](https://dl.acm.org/doi/10.1145/3640457.3691702)
+
 [![Institution](https://img.shields.io/badge/Institution-ETH%20Zurich-red)](https://ethz.ch)
 [![License](https://img.shields.io/badge/License-MIT-green)](https://opensource.org/licenses/MIT)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue)](https://docker.com)
