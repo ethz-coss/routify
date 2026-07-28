@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -21,6 +24,7 @@ import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import org.jgrapht.nio.gexf.GEXFExporter.Parameter;
 
 import ch.routify.Routify;
+import net.minidev.json.JSONObject;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.Serializer;
@@ -134,6 +138,71 @@ public class CustomGraph<V, E> extends SimpleDirectedWeightedGraph<V, E> {
         // export graph as XML compatible with the tool Gephi
         exporter.exportGraph((CustomGraph<CustomVertex, CustomEdge>) this, writer);
         writer.close();
+    }
+
+    /**
+     * Exports the graph to a JSON file with a default filename based on the current date.
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    public void exportJson() throws IOException {
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        File outputFile = new File(String.format("graph_%s.json", currentDate.format(formatter)));
+        try (OutputStream out = new FileOutputStream(outputFile)) {
+            this.exportJson(out);
+        }
+    }
+
+    /**
+     * Exports the full graph as a single JSON document with two arrays:
+     * <ul>
+     *     <li>{@code vertices}: {@code id, lat, lon, alt}</li>
+     *     <li>{@code edges}: {@code source, target, distance, slope, highway}</li>
+     * </ul>
+     * The document streams row-by-row and never buffers the full text in memory,
+     * so it can safely be piped to disk or an HTTP response for large graphs.
+     *
+     * @param out the output stream to which the graph is exported
+     * @throws IOException if an I/O error occurs
+     */
+    public void exportJson(OutputStream out) throws IOException {
+        PrintWriter w = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+        try {
+            w.print("{\n  \"vertices\": [\n");
+            boolean first = true;
+            for (V v : this.vertexSet()) {
+                CustomVertex cv = (CustomVertex) v;
+                JSONObject o = new JSONObject();
+                o.put("id", cv.getOsmId());
+                o.put("lat", cv.getLat());
+                o.put("lon", cv.getLon());
+                o.put("alt", cv.getAltitude());
+                if (!first) w.print(",\n");
+                first = false;
+                w.print("    ");
+                w.print(o.toJSONString());
+            }
+            w.print("\n  ],\n  \"edges\": [\n");
+            first = true;
+            for (E e : this.edgeSet()) {
+                CustomEdge ce = (CustomEdge) e;
+                JSONObject o = new JSONObject();
+                o.put("source", ce.getSourceVertex().getOsmId());
+                o.put("target", ce.getTargetVertex().getOsmId());
+                o.put("distance", ce.getDistance());
+                o.put("slope", ce.getSlope());
+                o.put("highway", ce.getHighway());
+                if (!first) w.print(",\n");
+                first = false;
+                w.print("    ");
+                w.print(o.toJSONString());
+            }
+            w.print("\n  ]\n}\n");
+            w.flush();
+        } finally {
+            // caller owns the underlying stream (e.g. HTTP response) — do not close here
+        }
     }
 
     /**

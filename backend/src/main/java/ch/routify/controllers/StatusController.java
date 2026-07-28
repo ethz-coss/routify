@@ -1,13 +1,17 @@
 package ch.routify.controllers;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import ch.routify.Routify;
 import net.minidev.json.JSONObject;
@@ -57,13 +61,35 @@ public class StatusController {
     /**
      * Triggers update of cached metadata and updates graph datastructure according to new metadata.
      * @return ResponseEntity containing a empty {@link JSONObject}
-     * @throws Exception 
+     * @throws Exception
      */
     @GetMapping(path="/fetchmeta/")
     public ResponseEntity<JSONObject> fetchMeta() throws Exception {
         Routify.sys.fetchMetaData();
         Routify.logger.info("Metadata has been fetched from filesystem");
         return new ResponseEntity<>(new JSONObject(), HttpStatus.OK);
+    }
+
+    /**
+     * Streams the complete routing graph as a single JSON document with two arrays
+     * (vertices and edges). Intended for offline analysis: the response can be
+     * piped straight to disk (e.g. {@code curl > graph.json}) without the
+     * backend buffering the whole payload in memory.
+     *
+     * @return streaming JSON body produced by {@link ch.routify.graph.CustomGraph#exportJson(OutputStream)}
+     */
+    @GetMapping(path="/graph/", produces=MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StreamingResponseBody> getGraph() {
+        Routify.logger.info("Full graph export has been requested");
+        StreamingResponseBody body = (OutputStream out) -> {
+            try {
+                Routify.sys.getGraph().exportJson(out);
+            } catch (IOException e) {
+                Routify.logger.error("Error while streaming graph JSON", e);
+                throw e;
+            }
+        };
+        return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
 }
