@@ -1,0 +1,83 @@
+Sensitivity analysis — experiment setup
+=======================================
+
+Graph:     438,457 edges, ~6,148 km. GET /status/graph/, 2026-07-28.
+Generator: ComputeFullRouting_v4.py
+Sample:    N = 2000 O/D pairs (coordinates.json)
+
+
+Parameters
+----------
+Each parameter is swept over 6 values, holding the other three at
+their defaults. The value used by the existing test data is marked *
+and is retained as a sweep step, so the existing runs slot in as
+data points rather than being discarded.
+
+slope (threshold, percent grade — edges steeper than the slider are
+penalised; uphill only, per SlopeOperation)
+
+   step   slider   penalised edges   penalised length
+   ----   ------   ---------------   ----------------
+     1      30           0.98%             0.39%
+     2      19           2.17%             1.06%
+     3      10 *         6.31%             4.28%
+     4       7          10.25%             7.83%
+     5       3          21.77%            18.39%
+     6       0          39.07%            44.13%
+
+green_index / noise / air (impact multiplier, [0,100])
+
+   step    1    2     3     4      5     6
+   -----   --   --   ---   ----   ---   ---
+   slider   0   10    25    50 *   75   100
+
+Uphill slope distribution (basis for the slope sliders), Jenks
+natural breaks k = 5, fit on a 30,000-edge sample of positive
+slopes, capped at 30% (drops 2.5% of uphill edges — altitude noise,
+not roads):
+
+   class   range (%)        edges    edges %   length %
+   -----   -------------   ------   --------   --------
+   1        0.00 -  3.22   80,074     47.94%     60.92%
+   2        3.22 -  6.96   45,971     27.52%     21.92%
+   3        6.96 - 11.99   24,600     14.73%     11.32%
+   4       11.99 - 19.49   11,579      6.93%      4.45%
+   5       19.49 - 30.00    4,822      2.89%      1.39%
+
+
+Rationale
+---------
+The slope slider is a threshold, not a weight: it cuts the edge
+population into penalised and unpenalised at the given grade, and
+because SlopeOperation compares the signed slope, only climbs are
+affected — 39.1% of edges are uphill, and that is the population the
+slider partitions. Uniformly spaced slider values would sample that
+population very unevenly, since it is heavy-tailed: half of all
+climbs are gentler than 3.2% and only 2.9% exceed 19.5%. A uniform
+grid would spend most of its steps inside the near-flat bulk, where
+moving the threshold changes almost nothing, and would cross the
+steep tail in a single step. Setting the sliders at the upper edges
+of the Jenks classes instead makes each step move approximately one
+homogeneous class of climbs into the penalised set, so the change in
+penalised population is comparable from step to step and the
+resulting curve measures the router rather than the sampling grid.
+The one deviation is step 3, where the class-3 edge of 12 is replaced
+by 10 — the existing default — a shift well inside the class width
+and worth making so that no already-generated run is wasted. The
+three impact parameters need no such treatment: they are linear
+multipliers on a [0,1]-normalised value, so the response is smooth in
+the slider and a graded set spanning both endpoints suffices, with
+the spacing tightened at the low end where the operation transitions
+from inactive to dominant and loosened at the high end where an
+additional +25 changes little.
+
+
+Budget
+------
+24 requests per pair (6 slope + 6 x 3 impact) -> 48,000 total.
+Measured on dev-server: 1.45 s median per request, 914 KB median
+response. Sequential: ~19 h, ~48 GB raw.
+Recommended: write .jsonl, gzip, and reduce each response in-loop to
+length-weighted metrics (distance, mean_slope, mean_noise,
+mean_green, mean_pm10) keyed by (pair_id, param, step) — ~10 MB
+final. Keep raw responses for a ~20-pair audit sample only.
