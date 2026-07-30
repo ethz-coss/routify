@@ -234,4 +234,15 @@ Tip: run this after large jobs finish so you keep both the verbatim responses an
 
 ---
 
+## 11) Parameter sensitivity sweep
+
+The batch runner above generates data at a single default parameter set. For
+the multi-value sensitivity analysis — including the `slope_raw` variant with
+descents clamped to zero — see **`README_sensitivity_sweep.md`**, which covers
+`ComputeSweepRouting.py`, the multi-replica setup, `PostProcessSweep.py`, and
+the pre-dispatch verification gates. The rationale for the chosen parameter
+values is in `extended_experiment_setup.txt`.
+
+---
+
 That’s it! If you haven’t already, go to the **main repository README** for container setup and health check instructions for `routify-backend`, `routify-nominatim`, and `routify-photon`.

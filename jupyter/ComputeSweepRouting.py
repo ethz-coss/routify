@@ -72,14 +72,21 @@ IMPACT_PARAMS = {
 }
 
 
-def build_configs():
+def build_configs(only=None):
     """
     Returns the list of (param_name, value, routing_mode) tuples that make
     up one pair's worth of work: 6 slope + 6 x 3 impact = 24.
+
+    `only` restricts the sweep to a single parameter (e.g. "air"), which
+    yields 6 configs -- used to re-run one mode without touching the rest.
     """
     configs = [("slope", v, "routing_mode_slope") for v in SLOPE_VALUES]
     for param, mode in IMPACT_PARAMS.items():
         configs += [(param, v, mode) for v in IMPACT_VALUES]
+    if only:
+        configs = [c for c in configs if c[0] == only]
+        if not configs:
+            raise SystemExit(f"unknown sweep parameter: {only}")
     return configs
 
 
@@ -228,9 +235,23 @@ def main():
     ap.add_argument("--bench", type=int, default=None,
                     help="run a throughput benchmark of N requests and exit")
     ap.add_argument("--workers", type=int, default=WORKERS)
+    ap.add_argument("--param", type=str, default=None,
+                    choices=["slope", "green_index", "noise", "air"],
+                    help="sweep only this parameter (6 configs) instead of all 24")
+    ap.add_argument("--outdir", type=Path, default=None,
+                    help="write results here instead of the default results/ folder")
     args = ap.parse_args()
 
     globals()["WORKERS"] = args.workers
+    if args.param:
+        globals()["CONFIGS"] = build_configs(only=args.param)
+    if args.outdir:
+        globals()["OUTPUT_DIR"] = args.outdir
+        globals()["CHECKPOINT"] = args.outdir / "_checkpoint.json"
+
+    OUTPUT_DIR = globals()["OUTPUT_DIR"]
+    CHECKPOINT = globals()["CHECKPOINT"]
+    CONFIGS = globals()["CONFIGS"]
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
