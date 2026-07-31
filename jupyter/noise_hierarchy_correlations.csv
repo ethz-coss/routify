@@ -1,0 +1,5 @@
+relationship,level,n,spearman_rho,pearson_r,note
+importance_rank_vs_noise,edge,63387,-0.6703,-0.6454,rank 1=motorway..9=service; negative => higher class is louder
+drive_multiplier_vs_noise_eligible_only,edge,62597,-0.6722,-0.5587,11 of 14 eligible classes share multiplier 1.0
+drive_multiplier_vs_noise_all_classes,edge,220122,-0.2148,,Pearson meaningless with the 10000 sentinel; rank-based only
+class_mean_noise_vs_importance_rank,class,14,-0.7293,-0.7405,one observation per street class
