@@ -206,6 +206,7 @@ export class TourService {
   }
 
   private buildSteps(host: TourHost): TourStep[] {
+    const mobile = host.isMobile();
     return [
       {
         title: 'Welcome to Routify',
@@ -269,7 +270,8 @@ export class TourService {
         area: 'map',
         title: 'Compare routes',
         description:
-          'Both routes are now shown in their own colour. Hover a route to see details about the segment under the cursor.',
+          'Both routes are now shown in their own colour. ' +
+          (mobile ? 'Tap' : 'Hover') + ' a route to see details about that segment.',
         side: 'left',
       },
       {
@@ -281,12 +283,13 @@ export class TourService {
         skipIf: () => host.isMetricsOpen(),
       },
       {
-        target: 'chart',
+        // the whole card (chart + explanations) is too tall for the mobile bar, so spotlight only the plot there
+        target: mobile ? 'chart-plot' : 'chart',
         area: 'controls',
         title: 'Green index along the route',
         description:
           'The chart plots the selected metric over the length of each route. ' +
-          'Hovering a point in the chart highlights the same spot on the map.',
+          (mobile ? 'Tapping' : 'Hovering') + ' a point in the chart highlights the same spot on the map.',
         before: () => host.selectChart('green'),
       },
       {
