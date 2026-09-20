@@ -123,6 +123,16 @@ export class MapComponent implements AfterViewInit {
           mobileControlsContent.scrollTop = 0;
         }
       }, 100); // Small delay to ensure DOM is updated
+
+      // iOS Safari sometimes leaves the freshly expanded scroll container blank until it is
+      // scrolled; nudge it once the open transition has finished to force a repaint.
+      setTimeout(() => {
+        const mobileControlsContent = document.querySelector('.mobile-controls-content') as HTMLElement;
+        if (mobileControlsContent) {
+          mobileControlsContent.scrollTop = 1;
+          requestAnimationFrame(() => { mobileControlsContent.scrollTop = 0; });
+        }
+      }, 400); // after the 0.3s max-height/transform transitions
     }
     
     // Invalidate map size when controls open/close to ensure proper tile loading
