@@ -629,8 +629,18 @@ export class ControlsComponent implements TourHost {
     return this.metricsVisible;
   }
 
-  public openSidebar(): void {
-    this.map?.openLeftSidebar();
+  // Bring the controls on screen: sidebar on desktop, bottom bar on mobile.
+  public showControls(): void {
+    if (this.isMobile()) {
+      this.map?.setMobileControlsOpen(true);
+    } else {
+      this.map?.openLeftSidebar();
+    }
+  }
+
+  // Collapse the mobile bar so the map is unobstructed; no-op on desktop.
+  public hideControls(): void {
+    if (this.isMobile()) this.map?.setMobileControlsOpen(false);
   }
 
   public selectChart(chart: 'altitude' | 'green' | 'noise' | 'air'): void {
@@ -699,6 +709,6 @@ export class ControlsComponent implements TourHost {
   }
 
   public isMobile(): boolean {
-    return window.innerWidth <= 768;
+    return this.map?.isMobile() ?? window.innerWidth <= 768;
   }
 }

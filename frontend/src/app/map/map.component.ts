@@ -46,15 +46,19 @@ const osmColor: string = '#ff6200'
 export class MapComponent implements AfterViewInit {
   @Input({ required: true }) baseComponent!: BaseComponent;
   @ViewChild('controls') controls!: ControlsComponent;
+  @ViewChild('mobileControls') mobileControls!: ControlsComponent;
+
+  // The controls instance the user can actually see (desktop sidebar or mobile bar)
+  public get activeControls(): ControlsComponent {
+    return this.isMobile() ? this.mobileControls : this.controls;
+  }
 
   
   ngAfterViewInit() {
     this.initMap();
 
-    // Offer the guided tour once the app has settled (desktop only; the mobile layout is not covered by the tour yet)
-    if (!this.isMobile()) {
-      setTimeout(() => this.controls?.offerTour(), 1500);
-    }
+    // Offer the guided tour once the app has settled
+    setTimeout(() => this.activeControls?.offerTour(), 1500);
     
     // Remove the problematic control container appending code since map-canvas was removed
     // The controls should work fine without this manual appending
@@ -101,6 +105,10 @@ export class MapComponent implements AfterViewInit {
   }
 
   // Mobile controls methods
+  public setMobileControlsOpen(open: boolean): void {
+    if (this.mobileControlsOpen !== open) this.toggleMobileControls();
+  }
+
   public toggleMobileControls(): void {
     this.mobileControlsOpen = !this.mobileControlsOpen;
     
@@ -384,10 +392,8 @@ export class MapComponent implements AfterViewInit {
     this.infoButton = new InfoButton(this, { position: 'topleft' });
     this.infoButton.addTo(this.map);
 
-    // add guided tour button (desktop only; the mobile layout is not covered by the tour yet)
-    if (!this.isMobile()) {
-      new TourButton(this, { position: 'topleft' }).addTo(this.map);
-    }
+    // add guided tour button
+    new TourButton(this, { position: 'topleft' }).addTo(this.map);
 
     // add click event handler for querymode (only on desktop)
     if (this.queryModeButton) {

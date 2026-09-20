@@ -18,7 +18,7 @@ export class TourButton extends L.Control {
         L.DomEvent.on(container, 'click', (e) => {
             L.DomEvent.stopPropagation(e);
             e.preventDefault();
-            this.mapComponent.controls?.startTour();
+            this.mapComponent.activeControls?.startTour();
         });
         return container;
     }
