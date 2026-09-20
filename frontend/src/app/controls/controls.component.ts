@@ -21,6 +21,7 @@ import { CustomRoute, getMetaData } from 'src/custom-route.model';
 import { Presets } from 'src/app/global-presets'
 import { VersionService } from 'src/version.service';
 import { config } from '../config';
+import { TourHost, TourService } from '../tour/tour.service';
 
 @Component({
   selector: 'app-controls',
@@ -41,11 +42,11 @@ import { config } from '../config';
     ParameterSliderComponent
   ]
 })
-export class ControlsComponent {
+export class ControlsComponent implements TourHost {
 
   @Input() map: MapComponent | undefined;
 
-  constructor(public routing: BackendService, private cdr: ChangeDetectorRef, private sanitizer: DomSanitizer, private versionService: VersionService) {
+  constructor(public routing: BackendService, private cdr: ChangeDetectorRef, private sanitizer: DomSanitizer, private versionService: VersionService, public tour: TourService) {
     this.versionService.getVersion().subscribe(data => {
       this.version = data;
     });
@@ -461,6 +462,7 @@ export class ControlsComponent {
           });
           this.displayRoutes();
           this.closeNotificationLoading();
+          this.tour.notify('routes-displayed', this.prevRoutingModes);
         })
           .catch(error => {
             // alert(error.error.error_msg);
@@ -590,6 +592,52 @@ export class ControlsComponent {
     if (this.map) {
       this.map.openProjectInfo();
     }
+  }
+
+  public openPrivacyNotice(): void {
+    this.map?.openProjectInfo('privacy-notice');
+  }
+
+  // ---- guided tour -------------------------------------------------------
+  public startTour(): void {
+    this.map?.closeProjectInfo();
+    this.tour.start(this);
+  }
+
+  // Asks once (per browser) whether the user wants the guided tour.
+  public offerTour(): void {
+    if (this.tour.shouldOffer()) this.tour.offer(this);
+  }
+
+  public hasFrom(): boolean {
+    return !!this.input_from?.value && this.input_from.value.id != -1;
+  }
+
+  public hasTo(): boolean {
+    return !!this.input_to?.value && this.input_to.value.id != -1;
+  }
+
+  public isModeActive(mode: string): boolean {
+    return this.routingModes.includes(mode);
+  }
+
+  public isRouteDisplayed(mode: string): boolean {
+    return this.routingModes.includes(mode) && this.prevRoutingModes.includes(mode);
+  }
+
+  public isMetricsOpen(): boolean {
+    return this.metricsVisible;
+  }
+
+  public openSidebar(): void {
+    this.map?.openLeftSidebar();
+  }
+
+  public selectChart(chart: 'altitude' | 'green' | 'noise' | 'air'): void {
+    this.overlayEnabled = false;
+    this.selectedChart = chart;
+    this.onChangeSelectedChart();
+    this.cdr.detectChanges();
   }
 
   public getColorForRoutingMode(routingMode: string): string {

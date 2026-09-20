@@ -11,10 +11,10 @@
         <mat-icon class="filler_icon2" fontIcon="noise_control_off"></mat-icon>
         <mat-icon class="filler_icon3" fontIcon="noise_control_off"></mat-icon>
         <mat-icon class="destination_icon" fontIcon="location_on"></mat-icon>
-        <app-select-autocomplete class="container-input-address1" [placeholder]="'Starting point'" #input_from
-            (keydown.enter)="requestRouting()" (change)="requestRouting()"></app-select-autocomplete>
-        <app-select-autocomplete class="container-input-address2" [placeholder]="'Destination'" #input_to
-            (keydown.enter)="requestRouting()" (change)="requestRouting()"></app-select-autocomplete>
+        <app-select-autocomplete class="container-input-address1" [placeholder]="'Starting point'" #input_from data-tour="address-from"
+            (keydown.enter)="requestRouting()" (change)="requestRouting()" (selected)="tour.notify('from-selected')"></app-select-autocomplete>
+        <app-select-autocomplete class="container-input-address2" [placeholder]="'Destination'" #input_to data-tour="address-to"
+            (keydown.enter)="requestRouting()" (change)="requestRouting()" (selected)="tour.notify('to-selected')"></app-select-autocomplete>
     </div>
         <div class="flip-col">
             <button class="flip-inside-transport" (click)="flipAddresses()" title="Swap origin and destination addresses">
@@ -22,7 +22,7 @@
             </button>
         </div>
         <div class="custom-transport-container">
-            <div class="custom-transport-group">
+            <div class="custom-transport-group" data-tour="transport-modes">
                 <button class="custom-transport-btn" 
                         [class.active]="transportMode === 'transport_mode_walk'"
                         (click)="transportMode = 'transport_mode_walk'; onChangeControls()" 
@@ -52,10 +52,10 @@
     </div>
     <div class="container-mode-selection">
         <div class="custom-routing-modes">
-            <button class="custom-mode-btn" [class.active]="isRoutingModeActive('routing_mode_distance')" (click)="toggleRoutingMode('routing_mode_distance', $event)" (contextmenu)="openSliderFor('routing_mode_distance', $event)" [style.--active-border-color]="getColorForRoutingMode('routing_mode_distance')" [ngClass]="{'active-slider': activeSliderMode==='routing_mode_distance'}" title="distance">
+            <button class="custom-mode-btn" [class.active]="isRoutingModeActive('routing_mode_distance')" (click)="toggleRoutingMode('routing_mode_distance', $event)" (contextmenu)="openSliderFor('routing_mode_distance', $event)" data-tour="mode-distance" [style.--active-border-color]="getColorForRoutingMode('routing_mode_distance')" [ngClass]="{'active-slider': activeSliderMode==='routing_mode_distance'}" title="distance">
                 <mat-icon aria-hidden="false" aria-label="distance" fontIcon="signpost" [style.color]="getColorForRoutingMode('routing_mode_distance')"></mat-icon>
             </button>
-            <button class="custom-mode-btn" [class.active]="isRoutingModeActive('routing_mode_green')" (click)="toggleRoutingMode('routing_mode_green', $event)" (contextmenu)="openSliderFor('routing_mode_green', $event)" [style.--active-border-color]="getColorForRoutingMode('routing_mode_green')" [ngClass]="{'active-slider': activeSliderMode==='routing_mode_green'}" title="green index">
+            <button class="custom-mode-btn" [class.active]="isRoutingModeActive('routing_mode_green')" (click)="toggleRoutingMode('routing_mode_green', $event)" (contextmenu)="openSliderFor('routing_mode_green', $event)" data-tour="mode-green" [style.--active-border-color]="getColorForRoutingMode('routing_mode_green')" [ngClass]="{'active-slider': activeSliderMode==='routing_mode_green'}" title="green index">
                 <mat-icon aria-hidden="false" aria-label="green_index" fontIcon="eco" [style.color]="getColorForRoutingMode('routing_mode_green')"></mat-icon>
             </button>
             <button class="custom-mode-btn" [class.active]="isRoutingModeActive('routing_mode_slope')" (click)="toggleRoutingMode('routing_mode_slope', $event)" (contextmenu)="openSliderFor('routing_mode_slope', $event)" [style.--active-border-color]="getColorForRoutingMode('routing_mode_slope')" [ngClass]="{'active-slider': activeSliderMode==='routing_mode_slope'}" title="elevation">
@@ -82,8 +82,8 @@
 
 
     <div class="bottom-container">
-        <mat-expansion-panel class="metrics-expansion" [expanded]="metricsVisible" hideToggle="true" (opened)="metricsVisible = true; directionsVisible = false; onChangeSelectedChart()" (closed)="metricsVisible = false">
-            <mat-expansion-panel-header>
+        <mat-expansion-panel class="metrics-expansion" [expanded]="metricsVisible" hideToggle="true" (opened)="metricsVisible = true; directionsVisible = false; onChangeSelectedChart(); tour.notify('metrics-opened')" (closed)="metricsVisible = false">
+            <mat-expansion-panel-header data-tour="metrics-header">
                 <div class="metrics-header">
                     <button mat-icon-button color="primary" class="metrics-toggle-btn" (click)="$event.stopPropagation(); toggleMetrics()" title="toggle metrics">
                         <mat-icon>{{ metricsVisible ? 'expand_less' : 'expand_more' }}</mat-icon>
@@ -93,7 +93,7 @@
             </mat-expansion-panel-header>
 
             <!-- statistics control: overlay toggle + either metric or routing-mode buttons -->
-            <div class="container-mode-selection stats-container">
+            <div class="container-mode-selection stats-container" data-tour="chart-metrics">
                 <!-- overlay toggle (single button) -->
                 <div class="custom-routing-modes overlay-group">
                     <button class="custom-mode-btn overlay-toggle-btn" (click)="overlayEnabled = !overlayEnabled; onChangeSelectedChart()" [title]="overlayEnabled ? 'Disable overlay' : 'Enable overlay'">
@@ -126,7 +126,7 @@
                 </mat-checkbox>
             </div>
 
-            <div class="stats-chart">
+            <div class="stats-chart" data-tour="chart">
                 <!-- <div class="stats-chart-title">{{ overlayEnabled ? 'Normalized Multi‑Metric Overlay' : (selectedChart === 'altitude' ? 'altitude' : selectedChart === 'green' ? 'green index' : selectedChart === 'noise' ? 'noise level' : 'air pollution') }}</div> -->
                 <app-custom-chart #chart_main [map]="this.map"
                     [info]="overlayEnabled ? '' : (selectedChart === 'altitude' ? 'altitude [m]' : selectedChart === 'green' ? 'green index' : selectedChart === 'noise' ? 'noise [db]' : 'PM 10 [µg/m³]')"
@@ -202,10 +202,17 @@
             <!-- version: {{ v.version }} -->
             git-hash: {{ v.gitHash || 'unknown' }}, build-date: {{ v.buildDate && v.buildDate !== 'undefined' ? (v.buildDate | date:'yyyy-MM-dd') : 'unknown' }}
         </div>
-        <button class="project-info-btn" (click)="openProjectInfo()" title="About Routify">
-            <mat-icon fontIcon="info"></mat-icon>
-            About Project
-        </button>
+        <div class="version-actions">
+            <button class="project-info-btn" (click)="startTour()" title="Guided tour">
+                <mat-icon fontIcon="school"></mat-icon>
+                Take a tour
+            </button>
+            <button class="project-info-btn" (click)="openProjectInfo()" title="About Routify">
+                <mat-icon fontIcon="info"></mat-icon>
+                About Project
+            </button>
+        </div>
+        <a class="privacy-link" href="#" (click)="$event.preventDefault(); openPrivacyNotice()">Privacy notice</a>
     </div>
 
 </div>

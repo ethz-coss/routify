@@ -85,3 +85,66 @@ a::after {
 .router-link-active {
     border-bottom: 4px solid var(--primary-blue) !important;
 }
+
+/* ---- guided tour (driver.js) ------------------------------------------ */
+.routify-tour-popover.driver-popover {
+    background: var(--primary-blue-light, #e7f3ff);
+    color: #01141d;
+    border: 1px solid var(--primary-blue-border, #b3d9ff);
+    border-radius: 8px;
+    max-width: 340px;
+}
+
+.routify-tour-popover .driver-popover-title {
+    color: var(--primary-blue-text, #0056b3);
+    font-size: 17px;
+}
+
+.routify-tour-popover .driver-popover-arrow {
+    border-color: var(--primary-blue-light, #e7f3ff);
+}
+
+.routify-tour-popover .driver-popover-arrow-side-left { border-right-color: transparent; border-top-color: transparent; border-bottom-color: transparent; }
+.routify-tour-popover .driver-popover-arrow-side-right { border-left-color: transparent; border-top-color: transparent; border-bottom-color: transparent; }
+.routify-tour-popover .driver-popover-arrow-side-top { border-bottom-color: transparent; border-left-color: transparent; border-right-color: transparent; }
+.routify-tour-popover .driver-popover-arrow-side-bottom { border-top-color: transparent; border-left-color: transparent; border-right-color: transparent; }
+
+.routify-tour-popover .driver-popover-footer button {
+    background: var(--primary-blue, #007bff);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    text-shadow: none;
+}
+
+.routify-tour-popover .driver-popover-footer button:hover {
+    background: var(--primary-blue-hover, #0056b3);
+}
+
+.routify-tour-popover .driver-popover-footer button.routify-tour-decline-btn {
+    background: transparent;
+    color: var(--primary-blue-text, #0056b3);
+    border: 1px solid var(--primary-blue-border, #b3d9ff);
+    margin-right: 4px;
+}
+
+.routify-tour-popover .driver-popover-footer button.routify-tour-decline-btn:hover {
+    background: #fff;
+}
+
+.routify-tour-popover .driver-popover-close-btn {
+    background: transparent;
+    color: #6b7280;
+    padding: 0;
+}
+
+/* The address dropdown is appended to <body>; keep it clickable and above the tour overlay. */
+.driver-active .ng-dropdown-panel,
+.driver-active .ng-dropdown-panel * {
+    pointer-events: auto;
+}
+
+.routify-tour-active .ng-dropdown-panel {
+    z-index: 10001 !important;
+}

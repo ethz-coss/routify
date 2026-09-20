@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, AfterViewInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, AfterViewInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 // import custom components
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -20,6 +20,7 @@ import { AutoCompleteService, Feature } from '../../autocomplete.service';
 })
 export class SelectAutocompleteComponent implements OnDestroy, AfterViewInit {
   @Input() placeholder: string = "";
+  @Output() selected = new EventEmitter<Feature | null>();
   items: Observable<Feature[]> | undefined;
   selectedItem: number = -1;
   private searchSubject = new Subject<string>();
@@ -81,6 +82,7 @@ export class SelectAutocompleteComponent implements OnDestroy, AfterViewInit {
 
   public onSelectionChanged(event: any): void {
     this.value = event;
+    this.selected.emit(event);
     // Update selectedItem to maintain consistency
     if (event && this.items) {
       this.items.subscribe(items => {

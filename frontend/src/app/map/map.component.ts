@@ -21,6 +21,7 @@ import { BaseComponent } from '../base/base.component';
 import { SidebarButton } from './sidebar-button';
 import { QueryModeButton } from './query-mode-button';
 import { InfoButton } from './info-button';
+import { TourButton } from './tour-button';
 import 'leaflet-maskcanvas';
 import 'leaflet-groupedlayercontrol';
 import 'leaflet-compass/dist/leaflet-compass.min.js';
@@ -49,6 +50,11 @@ export class MapComponent implements AfterViewInit {
   
   ngAfterViewInit() {
     this.initMap();
+
+    // Offer the guided tour once the app has settled (desktop only; the mobile layout is not covered by the tour yet)
+    if (!this.isMobile()) {
+      setTimeout(() => this.controls?.offerTour(), 1500);
+    }
     
     // Remove the problematic control container appending code since map-canvas was removed
     // The controls should work fine without this manual appending
@@ -211,8 +217,12 @@ export class MapComponent implements AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  public openProjectInfo(): void {
+  public openProjectInfo(section?: 'privacy-notice'): void {
     this.projectInfoVisible = true;
+    if (section) {
+      // wait for the sidebar slide-in before scrolling to the requested card
+      setTimeout(() => document.getElementById(section)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 350);
+    }
     this.cdr.detectChanges();
   }
 
@@ -373,6 +383,11 @@ export class MapComponent implements AfterViewInit {
     // add info button
     this.infoButton = new InfoButton(this, { position: 'topleft' });
     this.infoButton.addTo(this.map);
+
+    // add guided tour button (desktop only; the mobile layout is not covered by the tour yet)
+    if (!this.isMobile()) {
+      new TourButton(this, { position: 'topleft' }).addTo(this.map);
+    }
 
     // add click event handler for querymode (only on desktop)
     if (this.queryModeButton) {

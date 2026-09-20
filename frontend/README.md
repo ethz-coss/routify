@@ -172,7 +172,14 @@ Build-time environment variables (set during Docker build):
 
 ## Running locally (development)
 
-1. Start the Routify Backend locally (default: `http://localhost:8080`).
+1. Start the Routify Backend and Photon locally, e.g. from the repository root:
+
+```bash
+docker compose up -d backend photon
+```
+
+   The backend is expected on `http://localhost:8080`. Address search goes to `/photon/`, which the dev server proxies to `http://localhost:2322` (see `proxy.conf.json`).
+
 2. Start the frontend dev server:
 
 ```bash
