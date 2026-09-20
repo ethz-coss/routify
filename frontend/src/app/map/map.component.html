@@ -21,7 +21,7 @@
     
     <div class="map-area">
         <div class="map-frame">
-            <div id="map"></div>
+            <div id="map" data-tour="map"></div>
         </div>
     </div>
     
@@ -299,6 +299,39 @@
                             <div class="erc-logo">
                                 <img src="/assets/images/LOGO_ERC-FLAG_FP_v2.png" alt="European Research Council Logo">
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Privacy Notice (Swiss FADP art. 19 information duty) -->
+                    <div class="info-card privacy-card" id="privacy-notice">
+                        <div class="card-header">
+                            <mat-icon class="card-icon">privacy_tip</mat-icon>
+                            <h3>Privacy Notice</h3>
+                        </div>
+                        <div class="card-content privacy-content">
+                            <p><strong>Controller:</strong> Computational Social Science, ETH Zürich, Stampfenbachstrasse 48, 8092 Zürich, Switzerland,
+                                <a [href]="'mailto:' + config.contactEmail">{{ config.contactEmail }}</a>.</p>
+
+                            <h4>What we process and why</h4>
+                            <ul>
+                                <li><strong>Addresses and route requests</strong> you enter are sent to our servers to look up locations and compute routes. They are processed only to answer your request and are not linked to your identity.</li>
+                                <li><strong>Technical data</strong> (IP address, browser type, time of request) is recorded in server logs for security and troubleshooting and deleted after a short period.</li>
+                                <li><strong>Tour preference:</strong> whether you completed or declined the guided tour is stored in your browser (<code>localStorage</code>, key <code>routify.tour</code>). It never leaves your device; clear your site data to reset it.</li>
+                            </ul>
+                            <p>Our servers are hosted on dedicated infrastructure by Hetzner Online GmbH (Germany), which acts as our processor. We do not use cookies, analytics or advertising trackers, and we do not create user accounts or profiles.</p>
+
+                            <h4>Third-party services</h4>
+                            <p>To display the map and the interface, your browser loads content directly from the following providers, which therefore see your IP address:</p>
+                            <ul>
+                                <li>Map tiles: OpenStreetMap Foundation (UK), CARTO (Spain/USA), Thunderforest (UK), Esri (USA), OpenTopoMap (Germany)</li>
+                                <li>Air-quality layers: OstLuft / Meteotest (Switzerland)</li>
+                                <li>Fonts and icons: Google Fonts (USA), Cloudflare cdnjs (USA)</li>
+                            </ul>
+                            <p>Transfers to the EU/EEA and UK rely on the Federal Council's adequacy decisions; transfers to the USA rely on the Swiss-U.S. Data Privacy Framework or standard contractual clauses.</p>
+
+                            <h4>Your rights</h4>
+                            <p>Under the Swiss Federal Act on Data Protection you may request information about, correction or deletion of your personal data by contacting us at the address above. You may also complain to the Federal Data Protection and Information Commissioner (FDPIC).</p>
+                            <p class="privacy-updated">Last updated: September 2026</p>
                         </div>
                     </div>
 

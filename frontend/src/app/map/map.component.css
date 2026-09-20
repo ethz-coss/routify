@@ -1129,3 +1129,39 @@
     }
 }
 
+
+/* Privacy notice card */
+.privacy-content h4 {
+    margin: 14px 0 6px 0;
+    font-size: 0.95em;
+    color: var(--primary-blue-text, #0056b3);
+}
+
+.privacy-content ul {
+    margin: 0 0 8px 0;
+    padding-left: 18px;
+}
+
+.privacy-content li {
+    margin-bottom: 6px;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.privacy-content code {
+    font-size: 0.85em;
+    background: #f1f3f5;
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+.privacy-content .todo {
+    color: #b45309;
+    font-style: italic;
+}
+
+.privacy-updated {
+    font-size: 0.8em;
+    color: #6b7280;
+    margin-top: 10px;
+}

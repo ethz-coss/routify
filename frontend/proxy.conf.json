@@ -1,0 +1,8 @@
+{
+  "/photon": {
+    "target": "http://localhost:2322",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/photon": "" }
+  }
+}

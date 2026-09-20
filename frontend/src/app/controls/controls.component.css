@@ -735,3 +735,17 @@ a::after {
     color: var(--primary-blue-text);
     font-size: 0.9em;
 }
+
+.version-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.privacy-link {
+    margin-top: 10px;
+    font-size: 0.8em;
+    color: var(--primary-blue-text);
+    text-decoration: underline;
+}
