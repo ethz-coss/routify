@@ -15,6 +15,8 @@ interface TourStep {
   title: string;
   description: string;
   side?: 'left' | 'right' | 'top' | 'bottom';
+  // Where the target lives; decides how the layout is prepared on mobile.
+  area?: 'controls' | 'map';
   // If set the step has no "Next" button and advances only when the event matches.
   waitFor?: (event: TourEvent, payload?: any) => boolean;
   // Skip the step when the app is already in the state it would ask for.
@@ -30,7 +32,9 @@ export interface TourHost {
   isModeActive(mode: string): boolean;
   isRouteDisplayed(mode: string): boolean;
   isMetricsOpen(): boolean;
-  openSidebar(): void;
+  isMobile(): boolean;
+  showControls(): void;
+  hideControls(): void;
   selectChart(chart: 'altitude' | 'green' | 'noise' | 'air'): void;
 }
 
@@ -40,6 +44,7 @@ const STORAGE_KEY = 'routify.tour';
 @Injectable({ providedIn: 'root' })
 export class TourService {
   private driver: Driver | null = null;
+  private host: TourHost | null = null;
   private steps: TourStep[] = [];
   private current = -1;
 
@@ -106,6 +111,7 @@ export class TourService {
 
   public start(host: TourHost): void {
     if (this.isActive()) this.driver?.destroy();
+    this.host = host;
     this.steps = this.buildSteps(host);
     this.current = -1;
 
@@ -128,8 +134,8 @@ export class TourService {
     });
 
     document.body.classList.add('routify-tour-active');
-    host.openSidebar();
-    // Give the sidebar transition a moment so the spotlight lands on the right spot.
+    host.showControls();
+    // Give the sidebar / bottom-bar transition a moment so the spotlight lands on the right spot.
     setTimeout(() => this.show(0), 350);
   }
 
@@ -158,22 +164,32 @@ export class TourService {
     }
     const step = this.steps[index];
     this.current = index;
+    // On mobile the controls live in a collapsible bottom bar: open it for control
+    // steps and collapse it for map steps so the spotlight is actually visible.
+    if (this.host?.isMobile()) {
+      if (step.area === 'controls') this.host.showControls();
+      if (step.area === 'map') this.host.hideControls();
+    }
     step.before?.();
     // `drive` initialises the overlay on the first call; afterwards `moveTo` keeps the state.
     const go = () => (drv.isActive() ? drv.moveTo(index) : drv.drive(index));
-    // A short delay lets `before` side effects (expansion panels, etc.) render first.
-    setTimeout(go, step.before ? 300 : 0);
+    // A short delay lets layout side effects (bar transition, expansion panels) render first.
+    setTimeout(go, step.before || this.host?.isMobile() ? 400 : 0);
   }
 
   private toDriveStep(step: TourStep, index: number): DriveStep {
     const isLast = index === this.steps.length - 1;
+    // Desktop: controls sit in the left sidebar, so popovers go right / left of the map.
+    // Mobile: controls sit in the bottom bar, so popovers go above them / below the map top.
+    const mobile = this.host?.isMobile() ?? false;
+    const side = mobile ? (step.area === 'map' ? 'bottom' : 'top') : step.side ?? 'right';
     return {
       element: step.target ? () => this.resolve(step.target!) : undefined,
       popover: {
         title: step.title,
         description: step.description,
-        side: step.side ?? 'right',
-        align: step.side === 'left' ? 'center' : 'start',
+        side,
+        align: mobile || step.side === 'left' ? 'center' : 'start',
         showButtons: step.waitFor ? ['close'] : ['next', 'close'],
         nextBtnText: isLast ? 'Finish' : 'Next',
         doneBtnText: 'Finish',
@@ -190,6 +206,7 @@ export class TourService {
   }
 
   private buildSteps(host: TourHost): TourStep[] {
+    const mobile = host.isMobile();
     return [
       {
         title: 'Welcome to Routify',
@@ -199,6 +216,7 @@ export class TourService {
       },
       {
         target: 'address-from',
+        area: 'controls',
         title: 'Starting point',
         description:
           'Type an address, e.g. <b>ETH Zürich</b>, and pick a suggestion from the list.',
@@ -207,6 +225,7 @@ export class TourService {
       },
       {
         target: 'address-to',
+        area: 'controls',
         title: 'Destination',
         description: 'Now enter where you want to go, e.g. <b>Zürich Stadelhofen</b>.',
         waitFor: (e) => e === 'to-selected',
@@ -214,12 +233,14 @@ export class TourService {
       },
       {
         target: 'transport-modes',
+        area: 'controls',
         title: 'Transport mode',
         description:
           'Routes are calculated for walking by default. You can switch to cycling or driving at any time.',
       },
       {
         target: 'mode-distance',
+        area: 'controls',
         title: 'Shortest route',
         description:
           'Click the signpost to compute the <b>shortest route</b> — this is the baseline every other route is compared against.',
@@ -228,6 +249,7 @@ export class TourService {
       },
       {
         target: 'map',
+        area: 'map',
         title: 'Your route on the map',
         description:
           'The shortest route is drawn on the map. Start and destination markers can be dragged to move the route.',
@@ -235,6 +257,7 @@ export class TourService {
       },
       {
         target: 'mode-green',
+        area: 'controls',
         title: 'Add a green route',
         description:
           'Click the leaf to add a route that prefers parks, trees and green spaces. ' +
@@ -244,28 +267,34 @@ export class TourService {
       },
       {
         target: 'map',
+        area: 'map',
         title: 'Compare routes',
         description:
-          'Both routes are now shown in their own colour. Hover a route to see details about the segment under the cursor.',
+          'Both routes are now shown in their own colour. ' +
+          (mobile ? 'Tap' : 'Hover') + ' a route to see details about that segment.',
         side: 'left',
       },
       {
         target: 'metrics-header',
+        area: 'controls',
         title: 'Route insights',
         description: 'Open <b>Route insights</b> to compare the routes by their metrics.',
         waitFor: (e) => e === 'metrics-opened',
         skipIf: () => host.isMetricsOpen(),
       },
       {
-        target: 'chart',
+        // the whole card (chart + explanations) is too tall for the mobile bar, so spotlight only the plot there
+        target: mobile ? 'chart-plot' : 'chart',
+        area: 'controls',
         title: 'Green index along the route',
         description:
           'The chart plots the selected metric over the length of each route. ' +
-          'Hovering a point in the chart highlights the same spot on the map.',
+          (mobile ? 'Tapping' : 'Hovering') + ' a point in the chart highlights the same spot on the map.',
         before: () => host.selectChart('green'),
       },
       {
         target: 'chart-metrics',
+        area: 'controls',
         title: 'Other metrics',
         description:
           'Switch between altitude, green index, noise and air pollution, or enable the overlay to see all of them at once. ' +

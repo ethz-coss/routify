@@ -1165,3 +1165,12 @@
     color: #6b7280;
     margin-top: 10px;
 }
+
+/* While the guided tour runs, give the mobile bar more room so spotlighted controls fit inside it */
+:host-context(.routify-tour-active) .mobile-controls-bar {
+    height: 72vh;
+}
+
+:host-context(.routify-tour-active) .mobile-controls-content.expanded {
+    max-height: calc(72vh - 65px);
+}

@@ -128,7 +128,7 @@
 
             <div class="stats-chart" data-tour="chart">
                 <!-- <div class="stats-chart-title">{{ overlayEnabled ? 'Normalized Multi‑Metric Overlay' : (selectedChart === 'altitude' ? 'altitude' : selectedChart === 'green' ? 'green index' : selectedChart === 'noise' ? 'noise level' : 'air pollution') }}</div> -->
-                <app-custom-chart #chart_main [map]="this.map"
+                <app-custom-chart #chart_main [map]="this.map" data-tour="chart-plot"
                     [info]="overlayEnabled ? '' : (selectedChart === 'altitude' ? 'altitude [m]' : selectedChart === 'green' ? 'green index' : selectedChart === 'noise' ? 'noise [db]' : 'PM 10 [µg/m³]')"
                     [description]="overlayEnabled ? descriptionOverlay : (selectedChart === 'altitude' ? descriptionAltitude : selectedChart === 'green' ? descriptionGreen : selectedChart === 'noise' ? descriptionNoise : descriptionAir)"
                     [precision]="overlayEnabled ? 2 : (selectedChart === 'altitude' ? 0 : selectedChart === 'noise' ? 0 : selectedChart === 'air' ? 1 : 2)"></app-custom-chart>
