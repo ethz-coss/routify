@@ -64,7 +64,8 @@ export class BackendService {
         return isLocalHost ? config.backendUrl : '';
     }
 
-    private buildUrl(path: string): string {
+    // Absolute URL for a backend path: direct localhost URL in dev, relative (proxied by Caddy) in production
+    public buildUrl(path: string): string {
         if (!this.activeBackendUrl) {
             return path.startsWith('/') ? path : `/${path}`;
         }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, interval, switchMap, catchError, of } from 'rxjs';
-import { config } from './app/config';
+import { BackendService } from './backend.service';
 
 /**
  * Service for monitoring backend health status.
@@ -18,7 +18,7 @@ export class HealthCheckService {
   public isOnline$: Observable<boolean> = this.isOnlineSubject.asObservable();
   public isChecking$: Observable<boolean> = this.isCheckingSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private backend: BackendService) {
     this.startHealthCheck();
   }
 
@@ -40,7 +40,7 @@ export class HealthCheckService {
   private checkBackendHealth(): Observable<boolean> {
     this.isCheckingSubject.next(true);
     
-    return this.http.get(`${config.backendUrl}/status/`).pipe(
+    return this.http.get(this.backend.buildUrl('/status/')).pipe(
       catchError((error) => {
         console.warn('Backend health check failed:', error);
         this.isOnlineSubject.next(false);
